@@ -1,8 +1,16 @@
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.views.generic.edit import CreateView
 from .models import User
+from django.views.generic.base import TemplateView
 
 # Create your views here.
+
+#class MenuView(TemplateView):
+    #temlate_name = 'AdmissinonApplication/menu.html'
+def MenuView(request):
+    return render(request, 'AdmissionApplication/menu.html')
 
 class UserAddView(CreateView):
     model = User
