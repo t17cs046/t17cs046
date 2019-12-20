@@ -12,13 +12,13 @@ class User(models.Model):
     #メールアドレス
     mail_address = models.CharField(max_length=10)
     #入館予定
-    entrance_schedule = models.DateField(blank=True,null=True)      
+    entrance_schedule = models.DateTimeField(blank=True,null=True)      
     #退館予定
-    exit_schedule = models.DateField(blank=True,null=True)
+    exit_schedule = models.DateTimeField(blank=True,null=True)
     #入館目的
     purpose_of_admission = models.CharField(max_length=100) 
     #申請時間
-    application_date = models.DateField(blank=True,null=True)
+    application_date = models.DateTimeField(blank=True,null=True)
     """
     #入館申請番号
     application_number = models.IntegerField()
@@ -27,9 +27,9 @@ class User(models.Model):
     #承認可否
     approval = models.BooleanField(default=False)
     #入館実績
-    achivement_entrance = models.DateField(blank=True,null=True)      
+    achivement_entrance = models.DateTimeField(blank=True,null=True)      
     #退館実績
-    achivement_exit = models.DateField(blank=True,null=True) 
+    achivement_exit = models.DateTimeField(blank=True,null=True) 
 """
     def __str__(self):
         return self.user_name     
