@@ -19,7 +19,7 @@ class User(models.Model):
     purpose_of_admission = models.CharField(max_length=100) 
     #申請時間
     application_date = models.DateTimeField(blank=True,null=True)
-    """
+    
     #入館申請番号
     application_number = models.IntegerField()
     #ワンタイムパスワード
@@ -30,7 +30,6 @@ class User(models.Model):
     achivement_entrance = models.DateTimeField(blank=True,null=True)      
     #退館実績
     achivement_exit = models.DateTimeField(blank=True,null=True) 
-"""
     def __str__(self):
         return self.user_name     
       
