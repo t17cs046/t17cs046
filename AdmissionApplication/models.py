@@ -10,7 +10,7 @@ class User(models.Model):
     #電話番号
     phone_number = models.CharField(max_length=13)
     #メールアドレス
-    mail_address = models.CharField(max_length=10)
+    mail_address = models.CharField(max_length=255)
     #入館予定
     entrance_schedule = models.DateTimeField(blank=True,null=True)      
     #退館予定
