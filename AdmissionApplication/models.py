@@ -32,5 +32,4 @@ class User(models.Model):
     achivement_exit = models.DateTimeField(blank=True,null=True) 
 """
     def __str__(self):
-        return self.user_name     
-      
+        return self.user_name           
