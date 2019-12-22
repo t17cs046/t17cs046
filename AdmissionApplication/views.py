@@ -21,5 +21,15 @@ class UserAddView(CreateView):
             return render(self.request, 'AdmissionApplication/confirm.html', ctx)
         if self.request.POST.get('next', '') == 'back':
             return render(self.request, 'AdmissionApplication/admission.html', ctx)
+        
+        if ("-" in self.request.POST.get("phone_number")) == False:
+            return HttpResponseRedirect('../../admin')      
+        
+        if ("@" in self.request.POST.get("mail_address")) == False:
+            return HttpResponseRedirect('../../admin')
+       
+        if self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):
+            return  HttpResponseRedirect('../../admin')
+        
         if self.request.POST.get('next', '') == 'create':
             return super().form_valid(form)
