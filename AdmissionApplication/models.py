@@ -30,6 +30,7 @@ class User(models.Model):
     achivement_entrance = models.DateTimeField(blank=True,null=True)      
     #退館実績
     achivement_exit = models.DateTimeField(blank=True,null=True) 
+
     def __str__(self):
         return self.user_name     
-      
+

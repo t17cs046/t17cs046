@@ -4,6 +4,8 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView
 from .models import User
 from django.views.generic.base import TemplateView
+from django.views.generic import ListView
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 def MenuView(request):
@@ -23,3 +25,12 @@ class UserAddView(CreateView):
             return render(self.request, 'AdmissionApplication/admission.html', ctx)
         if self.request.POST.get('next', '') == 'create':
             return super().form_valid(form)
+        
+class UserList(ListView):
+    model = User
+
+    def post(self, request, *args, **kwargs):
+        user_id = self.request.POST.get('user_id')
+        user = get_object_or_404(User, pk=user_id)
+        user.save()
+        return HttpResponseRedirect(reverse('list'))        
