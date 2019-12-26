@@ -7,6 +7,16 @@ from django.views.generic.base import TemplateView
 import re
 
 # Create your views here.
+
+phone_regex = re.compile(r'''(
+    (0)
+    (\d{1,3})
+    (-)
+    (\d{1,4})
+    (-)
+    (\d{3,4})
+    )''', re.VERBOSE)
+
 def MenuView(request):
     return render(request, 'AdmissionApplication/menu.html')
 
@@ -19,7 +29,8 @@ class UserAddView(CreateView):
     def form_valid(self, form):
         ctx = {'form': form}
         if self.request.POST.get('next', '') == 'confirm':
-            if ("-" in self.request.POST.get("phone_number")) == False:
+            phone_serch = re.search(phone_regex, self.request.POST.get("phone_number"))
+            if 'None' in str(phone_serch):
                 return render(self.request, 'AdmissionApplication/warning_phone.html', ctx)
             elif (re.match('[A-Za-z0-9\._+]+@[A-Za-z]+\.[A-Za-z]', self.request.POST.get("mail_address")) == None) :
                 return render(self.request, 'AdmissionApplication/warning_mail.html', ctx)      
