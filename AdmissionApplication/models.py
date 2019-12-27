@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils import timezone
 # Create your models here.
 
 class User(models.Model):
@@ -21,13 +21,14 @@ class User(models.Model):
     application_date = models.DateTimeField(blank=True,null=True)
     
     #入館申請番号
-    application_number = models.IntegerField()
+    application_number = models.IntegerField(primary_key=True)
     #ワンタイムパスワード
     password = models.CharField(max_length=8)      
     #承認可否
     approval = models.BooleanField(default=False)
     #入館実績
     achivement_entrance = models.DateTimeField(blank=True,null=True)      
+    #achivement_entrance = models.DateTimeField(default=timezone.now)
     #退館実績
     achivement_exit = models.DateTimeField(blank=True,null=True) 
 
