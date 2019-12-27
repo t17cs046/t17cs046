@@ -12,9 +12,11 @@ class User(models.Model):
     #メールアドレス
     mail_address = models.CharField(max_length=255)
     #入館予定
-    entrance_schedule = models.DateTimeField(blank=True,null=True)      
+    entrance_schedule = models.DateTimeField(blank=False,null=False)
+    #entrance_schedule = models.DateTimeField(blank=True,null=True)      
     #退館予定
-    exit_schedule = models.DateTimeField(blank=True,null=True)
+    exit_schedule = models.DateTimeField(blank=False,null=False)
+    #exit_schedule = models.DateTimeField(blank=True,null=True)
     #入館目的
     purpose_of_admission = models.CharField(max_length=100) 
     #申請時間

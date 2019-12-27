@@ -44,49 +44,60 @@ class UserEntrance(TemplateView):
     model=User
     #fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number",)
     template_name = 'AdmissionApplication/entrance.html'
-    success_url = '../menu_test'
-    def form_valid(self, form):
-        print(self.request.POST.get('next', '') +"aaaaaaaaaaaaaaaaaaaaaaaaaaa");
-        ctx = {'form': form}
-        if self.request.POST.get('next', '') == 'entrance':
-            user_id = self.request.POST.get('user_id')
-            user = get_object_or_404(User, pk=user_id)
-            user.achivement_entrance = models.DateTimeField(default=timezone.now)
-            user.save()
-            return render(self.request, 'AdmissionApplication/menu.html', ctx)
-        if self.request.POST.get('next', '') == 'back':      
-            #user_id = self.request.POST.get('application_number')
-            #achivement_entrance=self.request.POST.get('achivement_entrance')
-            user = get_object_or_404(User, pk=user_id)
-            form.achivement_entrance = models.DateTimeField(default=timezone.now)
-            print(user.achivement_entrance+"iiiiiiii");
-            form.save()
-            return super().form_valid(form)
-            #return render(self.request, 'AdmissionApplication/menu.html', ctx)
-        if self.request.POST.get('next', '') == 'create':
-            return super().form_valid(form)
-        
     def post(self, request, *args, **kwargs):
         print(self);
         print(request);
         print(*args);
-        #print(application_number);
         application_number = self.request.POST.get('application_number')
-        print(application_number);
-        #if User.application_number==application_number:
-        user = User.objects.get(pk=application_number)
-        context = super().get_context_data(**kwargs)
-        context['form_id'] = UserEntranceLogin()
-        context['user'] = user
-        return self.render_to_response(context)
-        #else:
-            #context = super().get_context_data(**kwargs) 
-            #return self.render_to_response(context)
-    
+        #post = get_object_or_404(User, pk=application_number)
+        #user = User.objects.get(User,pk=application_number)
+        #user = get_object_or_404(User, pk=application_number)
+        #context = super().get_context_data(**kwargs)
+        #context['form'] = UserEntranceLogin()
+        #context['user'] = user
+        #user_name=self.request.POST.get('user_name')
+        #organization_name=self.request.POST.get('organaization_name')
+        #phone_number=self.request.POST.get('phone_number')
+        #mail_adress=self.request.POST.get('mail_adress')
+        #entrance_shedule=self.request.POST.get('entrance_shedule')
+        #exit_shedule=self.request.POST.get('exit_shedule')
+        #purpose_of_admission=self.request.POST.get('purpose_of_admission')
+        #user = get_object_or_404(User, pk=application_number)
+        #user.user_name=user_name
+        #user.organization_name=organization_name
+        #user.phone_number=phone_number
+        #user.mail_adress=mail_adress
+        #user.entrance_shedule=entrance_shedule
+        #user.exit_shedule=exit_shedule
+        #user.purpose_of_admission=purpose_of_admission
+        #user.save()
+        
+        if User.objects.all().filter(pk=application_number) :
+            return HttpResponseRedirect(reverse('entrancewithID', args=(application_number,)))
+        else :
+            return HttpResponseRedirect(reverse('entrance'))
+ 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_id'] = UserEntranceLogin()
+        print(context);
         return context    
+
+class UserEntranceWithIDView(UpdateView):
+    model = User
+    fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
+    template_name = 'AdmissionApplication/entrancewithID.html'
+    def post(self, request, *args, **kwargs):
+        application_number = self.request.POST.get('application_number')
+        user = get_object_or_404(User, pk=application_number)
+        user.save()
+        return HttpResponseRedirect(reverse('list'))
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_id'] = UserEntranceLogin(initial = {'application_number' : self.kwargs.get('pk')})
+        return context    
+
+
 '''
     def form_valid(self, form):
         ctx = {'form': form}
