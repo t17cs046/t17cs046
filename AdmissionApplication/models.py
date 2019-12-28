@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.urls import reverse
 
 # Create your models here.
 
@@ -35,3 +36,9 @@ class User(models.Model):
     def __str__(self):
         return self.user_name     
       
+    def get_absolute_url(self):
+        return reverse("result", kwargs={
+            'id': self.pk,
+            'メールアドレス': self.mail_address,
+            '申請番号': self.application_number
+            })

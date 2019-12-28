@@ -26,7 +26,7 @@ class UserAddView(CreateView):
     model = User
     fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission")
     template_name = 'AdmissionApplication/admission.html'
-    success_url = '../menu_test'
+    #success_url = '../menu_test'
     
     def form_valid(self, form):
         ctx = {'form': form}
@@ -46,4 +46,10 @@ class UserAddView(CreateView):
          
         if self.request.POST.get('next', '') == 'create':
             return super().form_valid(form)
+        
+        
+def ResultView(request, **kwargs):
+    return render(request, 'admissionapplication/result.html',{
+        'contents': kwargs,
+    })
    
