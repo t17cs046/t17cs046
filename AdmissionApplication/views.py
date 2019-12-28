@@ -5,6 +5,8 @@ from django.views.generic.edit import CreateView
 from .models import User
 from django.views.generic.base import TemplateView
 import re
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 
@@ -34,7 +36,7 @@ class UserAddView(CreateView):
                 return render(self.request, 'AdmissionApplication/warning_phone.html', ctx)
             elif (re.match('[A-Za-z0-9\._+]+@[A-Za-z]+\.[A-Za-z]', self.request.POST.get("mail_address")) == None) :
                 return render(self.request, 'AdmissionApplication/warning_mail.html', ctx)      
-            elif self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):
+            elif self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):# or self.request.POST.get("entrance_schedule") < self.request.POST.get("applecation_date"):
                 return render(self.request, 'AdmissionApplication/warning_schedule.html', ctx)
             else:
                 return render(self.request, 'AdmissionApplication/confirm.html', ctx)
@@ -44,3 +46,4 @@ class UserAddView(CreateView):
          
         if self.request.POST.get('next', '') == 'create':
             return super().form_valid(form)
+   
