@@ -3,10 +3,13 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView
 from .models import User
+from .forms import *
 from django.views.generic.base import TemplateView
 import re
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
+from django.core.mail import send_mail, EmailMessage
+from django.template.loader import get_template
 
 # Create your views here.
 
@@ -24,9 +27,14 @@ def MenuView(request):
 
 class UserAddView(CreateView):
     model = User
-    fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission")
+    #fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission", "password")
+    form_class = UserForm
     template_name = 'AdmissionApplication/admission.html'
     #success_url = '../menu_test'
+    
+    def post(self, request, *args, **kwargs):
+        
+        return CreateView.post(self, request, *args, **kwargs)
     
     def form_valid(self, form):
         ctx = {'form': form}
@@ -45,6 +53,25 @@ class UserAddView(CreateView):
             return render(self.request, 'AdmissionApplication/admission.html', ctx)      
          
         if self.request.POST.get('next', '') == 'create':
+            template = get_template('admissionapplication/mail/create_mail.html')
+            mail_ctx={
+                'user_name': form.cleaned_data['user_name'],
+                'organization_name': form.cleaned_data['organization_name'],
+                'phone_number': form.cleaned_data['phone_number'],
+                'mail_address': form.cleaned_data['mail_address'],
+                'entrance_schedule': form.cleaned_data['entrance_schedule'],
+                'exit_schedule': form.cleaned_data['exit_schedule'],
+                'purpose_of_admission': form.cleaned_data['purpose_of_admission'],
+                'application_number': form.cleaned_data['user_name'],
+                'password': form.cleaned_data['user_name'],
+                }
+            EmailMessage(
+                subject='入館申請完了',
+                body=template.render(mail_ctx),
+                to=[form.cleaned_data['mail_address']],
+#                cc=[],
+#                bcc=[],
+            ).send()
             return super().form_valid(form)
         
         
