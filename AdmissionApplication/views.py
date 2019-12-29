@@ -6,6 +6,7 @@ from .models import User
 from django.views.generic.base import TemplateView
 import re
 from django.utils import timezone
+from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
 
 # Create your views here.
@@ -46,10 +47,18 @@ class UserAddView(CreateView):
          
         if self.request.POST.get('next', '') == 'create':
             return super().form_valid(form)
-        
-        
+                
 def ResultView(request, **kwargs):
     return render(request, 'admissionapplication/result.html',{
         'contents': kwargs,
     })
-   
+
+class UserList(ListView):
+    model = User
+
+    def post(self, request, *args, **kwargs):
+        user_id = self.request.POST.get('user_id')
+        user = get_object_or_404(User, pk=user_id)
+        user.save()
+        return HttpResponseRedirect(reverse('list'))        
+

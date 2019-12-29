@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %} 入館申請リスト {% endblock %}
+
+{% block main %}
+<form action="{% url 'list'%}" method="post">
+{% csrf_token %}
+<table class="table">
+	<thead class="thead-dark">
+		<tr>		
+		<th>入館申請番号</th>
+ 		<th>名前</th>
+		<th>企業名</th>
+	</tr>
+	</thead>
+	<tbody>
+{% for user in object_list %}
+	<tr>
+	 <td scope="row">{{ user.application_number }}</td>
+	 <td>{{ user.user_name }}</td>
+	 <td>{{ user.organization_name }}</td>
+	</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

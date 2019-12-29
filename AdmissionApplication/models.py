@@ -34,7 +34,7 @@ class User(models.Model):
     achivement_exit = models.DateTimeField('退館実績日時',blank=True,null=True) 
 
     def __str__(self):
-        return self.user_name     
+        return self.user_name   
       
     def get_absolute_url(self):
         return reverse("result", kwargs={
