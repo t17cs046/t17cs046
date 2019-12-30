@@ -17,7 +17,7 @@
 {% for user in object_list %}
 	<tr>
 	 <td scope="row">{{ user.application_number }}</td>
-	 <td><a href="{% url 'showwithID' user. %}">{{ user.user_name }}</a></td>
+	 <td><a href="{% url 'showwithID' user.application_number %}">{{ user.user_name }}</a></td>
 	 <td>{{ user.organization_name }}</td>
 	</tr>
 {% endfor %}
