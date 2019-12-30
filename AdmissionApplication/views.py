@@ -6,6 +6,8 @@ from .models import User
 from django.views.generic.base import TemplateView
 from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
+from django.views.generic.edit import UpdateView
+from .forms import UserIdForm
 
 # Create your views here.
 def MenuView(request):
@@ -34,3 +36,14 @@ class UserList(ListView):
         user = get_object_or_404(User, pk=user_id)
         user.save()
         return HttpResponseRedirect(reverse('list'))        
+    
+class UserShowWithIDView(UpdateView):
+    model = User
+    fields = ('application_number','user_name', 'organization_name', 'phone_number', 'mail_address', 'purpose_of_admission')
+    template_name = 'AdmissionApplication/user_list_detail.html'
+    success_url = 'list/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_id'] = UserIdForm(initial = {'user_id' : self.kwargs.get('pk')})
+        return context    

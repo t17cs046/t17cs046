@@ -16,3 +16,5 @@ class UserApproval(forms.Form):
     user_id = forms.IntegerField(label='ID')
     approval = forms.ChoiceField(label='APPROVAL',widget=forms.Select, choices=status)
     
+class UserIdForm(forms.Form):
+    user_id = forms.IntegerField(label='ID')    
