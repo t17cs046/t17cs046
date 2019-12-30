@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %} 申請結果 {% endblock %}
+
+{% block main %}
+
+  <tbody>
+  以下のメールアドレスに申請番号を送信しました．<br>
+      <tr>
+          {% for key, value in contents.items%}
+          <th>
+       
+          {{key}} &ensp; :&ensp; 
+          {{value}}<br></th>
+          {% endfor %}
+      </tr>
+      
+  </tbody>
+
+
+<a href="{% url 'menu' %}"><button type="button" class="btn btn-light">最初に</button></a>
+
+
+{% endblock %}
