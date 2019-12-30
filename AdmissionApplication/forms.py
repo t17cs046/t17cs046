@@ -1,5 +1,7 @@
 from django import forms
 from .models import User
+from pip._vendor.pkg_resources import require
+
 
 class ApplicationForm(forms.ModelForm):
     class Meta:
@@ -15,6 +17,12 @@ class UserApproval(forms.Form):
         )
     user_id = forms.IntegerField(label='ID')
     approval = forms.ChoiceField(label='APPROVAL',widget=forms.Select, choices=status)
+
+
+class UserEntranceLogin(forms.Form):
+    
+    application_number=forms.IntegerField(label='入館申請番号',required=True)
+    #application_number=User.application_number
     
 class UserIdForm(forms.Form):
     user_id = forms.IntegerField(label='ID')    

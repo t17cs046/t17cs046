@@ -13,16 +13,19 @@ class User(models.Model):
     #メールアドレス
     mail_address = models.CharField('メールアドレス',max_length=255)
     #入館予定
-    entrance_schedule = models.DateTimeField('入館予定日時',blank=True,null=True)      
+    entrance_schedule = models.DateTimeField('入館予定日時',blank=False,null=False)
+    #entrance_schedule = models.DateTimeField('入館予定日時',blank=True,null=True)      
     #退館予定
-    exit_schedule = models.DateTimeField('退館予定日時',blank=True,null=True)
+    exit_schedule = models.DateTimeField('退館予定日時',blank=False,null=False)
+    #exit_schedule = models.DateTimeField('退館予定日時',blank=True,null=True)
+
     #入館目的
     purpose_of_admission = models.CharField('入館目的',max_length=100) 
     #申請時間
     application_date = models.DateTimeField('申請時間',default=timezone.now, blank=True,null=True)
     
     #入館申請番号
-    application_number = models.PositiveIntegerField('入館申請番号',default=0)
+    application_number = models.PositiveIntegerField('入館申請番号',default=0,primary_key=True)
     #ワンタイムパスワード
     password = models.CharField('パスワード',max_length=8, null=True)      
     #承認可否

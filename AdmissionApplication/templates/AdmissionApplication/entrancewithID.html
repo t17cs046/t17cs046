@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %} 個別リスト {% endblock %}
+
+{% block main %}
+
+<ul>
+ <form action="{% url 'entrance' %}" method="post">
+ {% csrf_token %}
+<!-- {{ form_id.as_table }} -->
+<input type = "hidden" name = "application_number" value={{application_number}} required id="id_application_number">
+ 
+ 
+<dl>
+<dt>入館申請番号</dt><dd>{{ user.application_number }}</dd>
+<dt>名前</dt><dd>{{ user.user_name }}</dd>
+<dt>組織名</dt><dd>{{ user.organization_name }}</dd>
+<dt>電話</dt><dd>{{ user.phone_number }}</dd>
+<dt>メール</dt><dd>{{ user.mail_address }}</dd>
+<dt>入館日時</dt><dd>{{ user.entrance_schedule }}</dd>
+<dt>退館日時</dt><dd>{{ user.exit_schedule }}</dd>
+<dt>入館目的</dt><dd>{{ user.purpose_of_admission }}</dd>
+</dl>
+ 
+
+ <td><a href="{% url 'entrance' %}"><button type="button" class="btn btn-light"><font color = "#1e90ff">入館</font></button></a></td>
+ <td><a href="{% url 'entrance' %}"><button type="button" class="btn btn-light"><font color = "#1e90ff">退館</font></button></a></td>
+
+ </form>
+ 
+{% endblock %} 

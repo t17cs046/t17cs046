@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %} 個別リスト {% endblock %}
+
+{% block main %}
+<form class="ui form" action="{% url 'entrance' %}" method="post">
+{% csrf_token %}
+{{ form_id }}
+<input type="submit"/>
+</form>
+
+{% endblock %} 

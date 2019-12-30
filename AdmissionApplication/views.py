@@ -86,7 +86,35 @@ class UserList(ListView):
         user_id = self.request.POST.get('user_id')
         user = get_object_or_404(User, pk=user_id)
         user.save()
-        return HttpResponseRedirect(reverse('list'))        
+        return HttpResponseRedirect(reverse('list')) 
+    
+
+
+class UserEntrance(TemplateView):    
+    model=User
+    template_name = 'AdmissionApplication/entrance.html'
+    def post(self, request, *args, **kwargs):
+        application_number = self.request.POST.get('application_number')   
+        if  User.objects.all().filter(pk=application_number) :
+            return HttpResponseRedirect(reverse('entrancewithID', args=(application_number,)))
+        else :
+            return HttpResponseRedirect(reverse('entrance'))
+ 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_id'] = UserEntranceLogin()
+        return context    
+
+      
+class UserEntranceWithIDView(UpdateView):
+    model = User
+    fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
+    template_name = 'AdmissionApplication/entrancewithID.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_id'] = UserEntranceLogin()
+        return context        
 
       
 class UserShowWithIDView(UpdateView):
@@ -99,3 +127,4 @@ class UserShowWithIDView(UpdateView):
         context = super().get_context_data(**kwargs)
         context['form_id'] = UserIdForm(initial = {'user_id' : self.kwargs.get('pk')})
         return context    
+
