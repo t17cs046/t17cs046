@@ -1,17 +1,16 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from .models import User
 from .forms import *
 from django.views.generic.base import TemplateView
-import re
 from django.utils import timezone
 from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import get_template
-
+import re
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -89,3 +88,14 @@ class UserList(ListView):
         user.save()
         return HttpResponseRedirect(reverse('list'))        
 
+      
+class UserShowWithIDView(UpdateView):
+    model = User
+    fields = ('application_number','user_name', 'organization_name', 'phone_number', 'mail_address', 'purpose_of_admission')
+    template_name = 'AdmissionApplication/user_list_detail.html'
+    success_url = 'list/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_id'] = UserIdForm(initial = {'user_id' : self.kwargs.get('pk')})
+        return context    
