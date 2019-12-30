@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 # Create your models here.
 
 class User(models.Model):
@@ -30,7 +29,6 @@ class User(models.Model):
     approval = models.BooleanField(default=False)
     #入館実績
     achivement_entrance = models.DateTimeField(blank=True,null=True)      
-    #achivement_entrance = models.DateTimeField(default=timezone.now)
     #退館実績
     achivement_exit = models.DateTimeField(blank=True,null=True) 
 
