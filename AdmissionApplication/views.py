@@ -11,8 +11,9 @@ from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import get_template
 import re
+from django.db import models
 # Create your views here.
-
+application_number2=None
 phone_regex = re.compile(r'''(
     (0)
     (\d{1,3})
@@ -94,13 +95,39 @@ class UserEntrance(TemplateView):
     model=User
     template_name = 'AdmissionApplication/entrance.html'
     def post(self, request, *args, **kwargs):
-        application_number = self.request.POST.get('application_number')   
-        if  User.objects.all().filter(pk=application_number) :
+        print("UserEntrancePost");
+        print(kwargs);
+        application_number = self.request.POST.get('application_number')
+        print(request.POST)
+        print(request.GET)
+        
+        print(kwargs);
+        print(args);
+        print(application_number);
+
+#        if  application_number =="required":
+#            if self.request.POST.get('next', '') == 'back':
+#                #user_id = self.request.POST.get('application_number')
+#                print("application_number2")
+#                print(application_number2)
+#                user = get_object_or_404(User, pk=application_number)
+#                user.achivement_entrance=models.DateTimeField(auto_now_add=True)
+#                user.save()
+#                return render(self.request, 'AdmissionApplication/entrance.html')
+#            else: 
+#                return HttpResponseRedirect(reverse('entrance'))
+                    
+        if User.objects.all().filter(pk=application_number):
+            print("hozonnsarero")
+            print(application_number2)  
             return HttpResponseRedirect(reverse('entrancewithID', args=(application_number,)))
         else :
+            print("kottidayooooooooooooo")
             return HttpResponseRedirect(reverse('entrance'))
- 
+
     def get_context_data(self, **kwargs):
+        print("UserEntranceGet");
+        print(kwargs);
         context = super().get_context_data(**kwargs)
         context['form_id'] = UserEntranceLogin()
         return context    
@@ -110,8 +137,19 @@ class UserEntranceWithIDView(UpdateView):
     model = User
     fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
     template_name = 'AdmissionApplication/entrancewithID.html'
-
+    def post(self, request, *args, **kwargs):
+        print('adjfka')
+        print(request)
+        print(args)
+        print(kwargs)
+        application_number = self.request.POST.get('application_number')
+        user = get_object_or_404(User, pk=application_number)
+        user.achivement_entrance=models.DateTimeField(auto_now_add=True)
+        user.save()
+        return HttpResponseRedirect(reverse('list'))
     def get_context_data(self, **kwargs):
+        print("UserEntranceWithGet");
+        print(kwargs);
         context = super().get_context_data(**kwargs)
         context['form_id'] = UserEntranceLogin()
         return context        
