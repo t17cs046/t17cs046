@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import get_template
 import re
+from django.db import models
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -94,12 +95,12 @@ class UserEntrance(TemplateView):
     model=User
     template_name = 'AdmissionApplication/entrance.html'
     def post(self, request, *args, **kwargs):
-        application_number = self.request.POST.get('application_number')   
-        if  User.objects.all().filter(pk=application_number) :
+        application_number = self.request.POST.get('application_number')
+        if User.objects.all().filter(pk=application_number): 
             return HttpResponseRedirect(reverse('entrancewithID', args=(application_number,)))
         else :
             return HttpResponseRedirect(reverse('entrance'))
- 
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_id'] = UserEntranceLogin()
@@ -110,13 +111,22 @@ class UserEntranceWithIDView(UpdateView):
     model = User
     fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
     template_name = 'AdmissionApplication/entrancewithID.html'
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('next', '') == 'entrance_time_save':
+            application_number = kwargs.get('pk')
+            user = get_object_or_404(User, pk=application_number)
+            user.achivement_entrance=timezone.now()
+            user.save()
+            return HttpResponseRedirect(reverse('entrance'))
+        elif self.request.POST.get('next', '') == 'exit_time_save':
+            application_number = kwargs.get('pk')
+            user = get_object_or_404(User, pk=application_number)
+            user.achivement_exit=timezone.now()
+            user.save()
+            return HttpResponseRedirect(reverse('entrance'))
+        else:
+            return HttpResponseRedirect(reverse('entrance'))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form_id'] = UserEntranceLogin()
-        return context        
-
-      
 class UserShowWithIDView(UpdateView):
     model = User
     fields = ('application_number','user_name', 'organization_name', 'phone_number', 'mail_address', 'purpose_of_admission')
