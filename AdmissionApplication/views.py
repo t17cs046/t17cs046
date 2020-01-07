@@ -10,11 +10,13 @@ from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import get_template
-import re
+import re, string, random
+from datetime import datetime
 from django.db import models
 from Team5.wsgi import application
 from django.contrib.admin.utils import lookup_field
 from unicodedata import lookup
+
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -35,13 +37,15 @@ class UserAddView(CreateView):
     form_class = ApplicationForm
     template_name = 'AdmissionApplication/admission.html'
     #success_url = '../menu_test'
-    
-    def post(self, request, *args, **kwargs):
-        
-        return CreateView.post(self, request, *args, **kwargs)
-    
+
     def form_valid(self, form):
         ctx = {'form': form}
+        if form.is_valid():
+            word = string.digits + string.ascii_lowercase + string.ascii_uppercase
+            user = form.save(commit=False)
+            user.application_number = random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
+            user.password = ''.join([random.choice(word) for i in range(8)])
+            
         if self.request.POST.get('next', '') == 'confirm':
             phone_serch = re.search(phone_regex, self.request.POST.get("phone_number"))
             if 'None' in str(phone_serch):
@@ -57,6 +61,7 @@ class UserAddView(CreateView):
             return render(self.request, 'AdmissionApplication/admission.html', ctx)      
          
         if self.request.POST.get('next', '') == 'create':
+            user = form.save(commit=False)
             template = get_template('admissionapplication/mail/create_mail.html')
             mail_ctx={
                 'user_name': form.cleaned_data['user_name'],
@@ -66,8 +71,8 @@ class UserAddView(CreateView):
                 'entrance_schedule': form.cleaned_data['entrance_schedule'],
                 'exit_schedule': form.cleaned_data['exit_schedule'],
                 'purpose_of_admission': form.cleaned_data['purpose_of_admission'],
-                'application_number': form.cleaned_data['user_name'],
-                'password': form.cleaned_data['user_name'],
+                'application_number': user.application_number,
+                'password': user.password,
                 }
             EmailMessage(
                 subject='入館申請完了',

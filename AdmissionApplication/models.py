@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
+from django.core.validators import MinLengthValidator
 # Create your models here.
 
 class User(models.Model):
@@ -9,7 +10,7 @@ class User(models.Model):
     #組織名
     organization_name = models.CharField('組織名',max_length=20)       
     #電話番号
-    phone_number = models.CharField('電話番号',max_length=13)
+    phone_number = models.CharField('電話番号',max_length=13, validators=[MinLengthValidator(12)])
     #メールアドレス
     mail_address = models.CharField('メールアドレス',max_length=255)
     #入館予定
@@ -25,10 +26,9 @@ class User(models.Model):
     application_date = models.DateTimeField('申請時間',default=timezone.now, blank=True,null=True)
     
     #入館申請番号
-    application_number = models.PositiveIntegerField('入館申請番号',default=0)
-    #application_number = models.PositiveIntegerField('入館申請番号',default=0,primary_key=True)
+    application_number = models.PositiveIntegerField('入館申請番号')
     #ワンタイムパスワード
-    password = models.CharField('パスワード',max_length=8, null=True)      
+    password = models.CharField('パスワード',max_length=8, null=False)      
     #承認可否
     approval = models.BooleanField('承認可否',default=False)
     #入館実績
@@ -41,7 +41,6 @@ class User(models.Model):
       
     def get_absolute_url(self):
         return reverse("result", kwargs={
-            'id': self.pk,
             'メールアドレス': self.mail_address,
             '申請番号': self.application_number
             })
