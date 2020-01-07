@@ -173,38 +173,14 @@ class UserChangeDeleteWithIDView(UpdateView):
         if self.request.POST.get('next', '') == 'change':
             application_number = kwargs.get('pk')
             user = get_object_or_404(User, pk=application_number)
-            pk=user.pk
-            return HttpResponseRedirect(reverse('changewithID'),kwargs={'pk':pk})
+            user.achivement_entrance=timezone.now()
+            user.save()
+            return HttpResponseRedirect(reverse('changedelete'))
         elif self.request.POST.get('next', '') == 'delete':
             application_number = kwargs.get('pk')
             user = get_object_or_404(User, pk=application_number)
-            pk=user.pk
-            return HttpResponseRedirect(reverse('deletewithID'),kwargs={'pk':pk})
-        else:
-            return HttpResponseRedirect(reverse('changedelete'))
-
-class UserChangeWithIDView(UpdateView):
-    model = User
-    fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
-    template_name = 'AdmissionApplication/changewithID.html'
-    success_url = 'menu_test/'
-    def post(self, request, *args, **kwargs):
-        if self.request.POST.get('next', '') == 'entrance_time_save':
-            application_number = kwargs.get('pk')
-            user = get_object_or_404(User, pk=application_number)
-            user.achivement_entrance=timezone.now()
-            user.save()
-            return HttpResponseRedirect(reverse('entrance'))
-        elif self.request.POST.get('next', '') == 'exit_time_save':
-            application_number = kwargs.get('pk')
-            user = get_object_or_404(User, pk=application_number)
-            user.achivement_exit=timezone.now()
-            user.save()
+            user.delete()
             return HttpResponseRedirect(reverse('changedelete'))
         else:
             return HttpResponseRedirect(reverse('changedelete'))
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = UserEntranceForm()
-        return context
 
