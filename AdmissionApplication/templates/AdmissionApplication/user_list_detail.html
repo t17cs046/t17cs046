@@ -25,7 +25,7 @@
 <ul> 
  {% if user.approval == False %}
  このユーザーは未承認です。承認しますか？<br>
-<form action = "{% url 'UserStatusChange' user.application_number %}" method="post">
+<form action = "{% url 'UserStatusChange' user.id %}" method="post">
 	 	{% csrf_token %}
 	 	<input type="submit" name="UserStatusChange" value="承認">{{post.UserStatusChange}}</form>
  {% endif %}
