@@ -11,14 +11,17 @@
 		<th>入館申請番号</th>
  		<th>名前</th>
 		<th>企業名</th>
+		<th>承認可否</th>
 	</tr>
 	</thead>
 	<tbody>
 {% for user in object_list %}
 	<tr>
 	 <td scope="row">{{ user.application_number }}</td>
-	 <td><a href="{% url 'showwithID' user.application_number %}">{{ user.user_name }}</a></td>
+	 <td><a href="{% url 'showwithID' user.id %}">{{ user.user_name }}</a></td>
 	 <td>{{ user.organization_name }}</td>
+	 <td>{% if user.approval == False %}未承認{% endif %}
+{% if user.approval == True %}承認済み{% endif %}</td>
 	</tr>
 {% endfor %}
 </tbody>
