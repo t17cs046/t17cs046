@@ -12,6 +12,9 @@ from django.core.mail import send_mail, EmailMessage
 from django.template.loader import get_template
 import re
 from django.db import models
+from Team5.wsgi import application
+from django.contrib.admin.utils import lookup_field
+from unicodedata import lookup
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -93,17 +96,18 @@ class UserList(ListView):
 
 class UserEntrance(TemplateView):    
     model=User
+    fields = ("application_numbrer",)
     template_name = 'AdmissionApplication/entrance.html'
+    form_class = UserEntranceForm
     def post(self, request, *args, **kwargs):
-        application_number = self.request.POST.get('application_number')
-        if User.objects.all().filter(pk=application_number): 
-            return HttpResponseRedirect(reverse('entrancewithID', args=(application_number,)))
-        else :
-            return HttpResponseRedirect(reverse('entrance'))
+        application_number = self.request.POST.get("application_number")
+        user = get_object_or_404(User, application_number=application_number)  
+        pk=user.pk  
+        return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form_id'] = UserEntranceLogin()
+        context['form'] = UserEntranceForm()
         return context    
 
       

@@ -25,7 +25,8 @@ class User(models.Model):
     application_date = models.DateTimeField('申請時間',default=timezone.now, blank=True,null=True)
     
     #入館申請番号
-    application_number = models.PositiveIntegerField('入館申請番号',default=0,primary_key=True)
+    application_number = models.PositiveIntegerField('入館申請番号',default=0)
+    #application_number = models.PositiveIntegerField('入館申請番号',default=0,primary_key=True)
     #ワンタイムパスワード
     password = models.CharField('パスワード',max_length=8, null=True)      
     #承認可否
