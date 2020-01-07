@@ -146,4 +146,42 @@ class UserShowWithIDView(UpdateView):
         context = super().get_context_data(**kwargs)
         context['form_id'] = UserIdForm(initial = {'user_id' : self.kwargs.get('pk')})
         return context    
+    
+class UserChangeDelete(TemplateView):    
+    model=User
+    fields = ("application_numbrer",)
+    template_name = 'AdmissionApplication/changedelete.html'
+    form_class = UserEntranceForm
+    def post(self, request, *args, **kwargs):
+        application_number = self.request.POST.get("application_number")
+        user = get_object_or_404(User, application_number=application_number)  
+        pk=user.pk  
+        return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = UserEntranceForm()
+        return context    
+
+
+class UserChangeWithIDView(UpdateView):
+    model = User
+    fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
+    template_name = 'AdmissionApplication/changewithID.html'
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('next', '') == 'entrance_time_save':
+            application_number = kwargs.get('pk')
+            user = get_object_or_404(User, pk=application_number)
+            user.achivement_entrance=timezone.now()
+            user.save()
+            return HttpResponseRedirect(reverse('entrance'))
+        elif self.request.POST.get('next', '') == 'exit_time_save':
+            application_number = kwargs.get('pk')
+            user = get_object_or_404(User, pk=application_number)
+            user.achivement_exit=timezone.now()
+            user.save()
+            return HttpResponseRedirect(reverse('changedelete'))
+        else:
+            return HttpResponseRedirect(reverse('changedelete'))
+
 

@@ -11,6 +11,8 @@ urlpatterns = [
     path('<int:pk>/show', UserShowWithIDView.as_view(), name='showwithID'),
     
     path('entrance',UserEntrance.as_view(),name='entrance'),
-    path('<int:pk>/entrance',UserEntranceWithIDView.as_view(),name='entrancewithID')
+    path('<int:pk>/entrance',UserEntranceWithIDView.as_view(),name='entrancewithID'),
 
+    path('changedelete',UserChangeDelete.as_view(),name='changedelete'),
+    path('<int:pk>/change',UserChangeWithIDView.as_view(),name='changewithID')
     ]
