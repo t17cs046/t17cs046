@@ -13,6 +13,9 @@ urlpatterns = [
     path('entrance',UserEntrance.as_view(),name='entrance'),
     path('<int:pk>/entrance',UserEntranceWithIDView.as_view(),name='entrancewithID'),
 
-    path('changedelete',UserChangeDelete.as_view(),name='changedelete'),
-    path('<int:pk>/change',UserChangeWithIDView.as_view(),name='changewithID')
+    path('changedelete',UserChangeDeleteView.as_view(),name='changedelete'),
+    path('<int:pk>/changedelete',UserChangeDeleteWithIDView.as_view(),name='changedeletewithID'),
+    
+    path('<int:pk>/change',UserChangeWithIDView.as_view(),name='changewithID'),
+    path('<int:pk>/delete',UserChangeWithIDView.as_view(),name='deletewithID')
     ]
