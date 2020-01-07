@@ -1,13 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %} 個別リスト {% endblock %}
+{% block title %} 入館情報確認画面 {% endblock %}
 
 {% block main %}
 
 <ul>
- <form action="{% url 'entrance' %}" method="post">
+ <form  method="post">
  {% csrf_token %}
-<!-- {{ form_id.as_table }} -->
 <input type = "hidden" name = "application_number" value={{application_number}} required id="id_application_number">
  
  
@@ -22,10 +21,8 @@
 <dt>入館目的</dt><dd>{{ user.purpose_of_admission }}</dd>
 </dl>
  
-
- <td><a href="{% url 'entrance' %}"><button type="button" class="btn btn-light"><font color = "#1e90ff">入館</font></button></a></td>
- <td><a href="{% url 'entrance' %}"><button type="button" class="btn btn-light"><font color = "#1e90ff">退館</font></button></a></td>
-
+<button class="ui button grey" type="submit" name="next" value="entrance_time_save">入館</button>
+<button class="ui button orange" type="submit" name="next" value="exit_time_save">退館</button>
  </form>
  
 {% endblock %} 

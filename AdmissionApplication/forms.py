@@ -20,9 +20,13 @@ class UserApproval(forms.Form):
 
 
 class UserEntranceLogin(forms.Form):
-    
-    application_number=forms.IntegerField(label='入館申請番号',required=True)
-    #application_number=User.application_number
+    application_number=forms.IntegerField(label='入館申請番号')
+    #application_number=forms.IntegerField(label='入館申請番号',required=True)
+class UserEntranceForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["application_number",]
+            
     
 class UserIdForm(forms.Form):
     user_id = forms.IntegerField(label='ID')    

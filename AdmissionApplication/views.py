@@ -11,7 +11,12 @@ from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import get_template
 from django.shortcuts import redirect
-import re
+import re, string, random
+from datetime import datetime
+from django.db import models
+from Team5.wsgi import application
+from django.contrib.admin.utils import lookup_field
+from unicodedata import lookup
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -32,13 +37,15 @@ class UserAddView(CreateView):
     form_class = ApplicationForm
     template_name = 'AdmissionApplication/admission.html'
     #success_url = '../menu_test'
-    
-    def post(self, request, *args, **kwargs):
-        
-        return CreateView.post(self, request, *args, **kwargs)
-    
+
     def form_valid(self, form):
         ctx = {'form': form}
+        if form.is_valid():
+            word = string.digits + string.ascii_lowercase + string.ascii_uppercase
+            user = form.save(commit=False)
+            user.application_number = random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
+            user.password = ''.join([random.choice(word) for i in range(8)])
+            
         if self.request.POST.get('next', '') == 'confirm':
             phone_serch = re.search(phone_regex, self.request.POST.get("phone_number"))
             if 'None' in str(phone_serch):
@@ -54,6 +61,7 @@ class UserAddView(CreateView):
             return render(self.request, 'AdmissionApplication/admission.html', ctx)      
          
         if self.request.POST.get('next', '') == 'create':
+            user = form.save(commit=False)
             template = get_template('admissionapplication/mail/create_mail.html')
             mail_ctx={
                 'user_name': form.cleaned_data['user_name'],
@@ -63,8 +71,8 @@ class UserAddView(CreateView):
                 'entrance_schedule': form.cleaned_data['entrance_schedule'],
                 'exit_schedule': form.cleaned_data['exit_schedule'],
                 'purpose_of_admission': form.cleaned_data['purpose_of_admission'],
-                'application_number': form.cleaned_data['user_name'],
-                'password': form.cleaned_data['user_name'],
+                'application_number': user.application_number,
+                'password': user.password,
                 }
             EmailMessage(
                 subject='入館申請完了',
@@ -93,17 +101,18 @@ class UserList(ListView):
 
 class UserEntrance(TemplateView):    
     model=User
+    fields = ("application_numbrer",)
     template_name = 'AdmissionApplication/entrance.html'
+    form_class = UserEntranceForm
     def post(self, request, *args, **kwargs):
-        application_number = self.request.POST.get('application_number')   
-        if  User.objects.all().filter(pk=application_number) :
-            return HttpResponseRedirect(reverse('entrancewithID', args=(application_number,)))
-        else :
-            return HttpResponseRedirect(reverse('entrance'))
- 
+        application_number = self.request.POST.get("application_number")
+        user = get_object_or_404(User, application_number=application_number)  
+        pk=user.pk  
+        return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form_id'] = UserEntranceLogin()
+        context['form'] = UserEntranceForm()
         return context    
 
       
@@ -111,13 +120,22 @@ class UserEntranceWithIDView(UpdateView):
     model = User
     fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
     template_name = 'AdmissionApplication/entrancewithID.html'
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('next', '') == 'entrance_time_save':
+            application_number = kwargs.get('pk')
+            user = get_object_or_404(User, pk=application_number)
+            user.achivement_entrance=timezone.now()
+            user.save()
+            return HttpResponseRedirect(reverse('entrance'))
+        elif self.request.POST.get('next', '') == 'exit_time_save':
+            application_number = kwargs.get('pk')
+            user = get_object_or_404(User, pk=application_number)
+            user.achivement_exit=timezone.now()
+            user.save()
+            return HttpResponseRedirect(reverse('entrance'))
+        else:
+            return HttpResponseRedirect(reverse('entrance'))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form_id'] = UserEntranceLogin()
-        return context        
-
-      
 class UserShowWithIDView(UpdateView):
     model = User
     fields = ('application_number','user_name', 'organization_name', 'phone_number', 'mail_address', 'purpose_of_admission')
