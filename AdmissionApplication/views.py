@@ -31,13 +31,14 @@ class UserAddView(CreateView):
     form_class = ApplicationForm
     template_name = 'AdmissionApplication/admission.html'
     #success_url = '../menu_test'
-    
-    def post(self, request, *args, **kwargs):
-        
-        return CreateView.post(self, request, *args, **kwargs)
-    
+
     def form_valid(self, form):
         ctx = {'form': form}
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.application_number=1
+            user.password='asfgf'
+            #user.save()
         if self.request.POST.get('next', '') == 'confirm':
             phone_serch = re.search(phone_regex, self.request.POST.get("phone_number"))
             if 'None' in str(phone_serch):
@@ -53,6 +54,7 @@ class UserAddView(CreateView):
             return render(self.request, 'AdmissionApplication/admission.html', ctx)      
          
         if self.request.POST.get('next', '') == 'create':
+            user = form.save(commit=False)
             template = get_template('admissionapplication/mail/create_mail.html')
             mail_ctx={
                 'user_name': form.cleaned_data['user_name'],
@@ -62,8 +64,8 @@ class UserAddView(CreateView):
                 'entrance_schedule': form.cleaned_data['entrance_schedule'],
                 'exit_schedule': form.cleaned_data['exit_schedule'],
                 'purpose_of_admission': form.cleaned_data['purpose_of_admission'],
-                'application_number': form.cleaned_data['user_name'],
-                'password': form.cleaned_data['user_name'],
+                'application_number': user.application_number,
+                'password': user.password,
                 }
             EmailMessage(
                 subject='入館申請完了',
@@ -72,6 +74,7 @@ class UserAddView(CreateView):
 #                cc=[],
 #                bcc=[],
             ).send()
+            print(timezone.now())
             return super().form_valid(form)
                 
 def ResultView(request, **kwargs):
