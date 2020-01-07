@@ -99,22 +99,11 @@ class UserEntrance(TemplateView):
     fields = ("application_numbrer",)
     template_name = 'AdmissionApplication/entrance.html'
     form_class = UserEntranceForm
-    #lookup_field='application_number'
     def post(self, request, *args, **kwargs):
         application_number = self.request.POST.get("application_number")
-        s=False
-        for a in User.objects.values_list("application_number",flat=True ):
-            if int(a)==int(application_number):
-                s=True
-
-                break
         user = get_object_or_404(User, application_number=application_number)  
         pk=user.pk  
-        if s==True : #s==True:#User.objects.filter(application_number=application_number):#User.objects.filter(application_number=application_number) :#User.objects.values_list("application_number",flat=True).get(pk=application_number) :#User.objects.all().filter(pk=application_number): 
-            s=False
-            return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
-        elif s==False :
-            return HttpResponseRedirect(reverse('entrance'))
+        return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
