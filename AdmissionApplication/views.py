@@ -10,6 +10,7 @@ from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import get_template
+from django.shortcuts import redirect
 import re
 # Create your views here.
 
@@ -123,8 +124,21 @@ class UserShowWithIDView(UpdateView):
     template_name = 'AdmissionApplication/user_list_detail.html'
     success_url = 'list/'
 
+    def post(self, request, *args, **kwargs):
+        user_id = self.request.POST.get('user_id')
+        user = get_object_or_404(User, pk=user_id)
+        user.delete()
+        return HttpResponseRedirect(reverse('list'))
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_id'] = UserIdForm(initial = {'user_id' : self.kwargs.get('pk')})
         return context    
 
+def UserStatusChange(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    
+    if request.method == 'POST':
+        if user.approval == False :
+            user.approval = True
+    user.save()       
+    return redirect('list')

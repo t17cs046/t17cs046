@@ -5,8 +5,6 @@
 {% block main %}
 
 <ul>
-<form action="(% url 'showwithID' %)" method="post">
- {% csrf_token %}
  
 <dl>
 <dt>入館申請番号</dt><dd>{{ user.application_number }}</dd>
@@ -23,6 +21,15 @@
 <dt>入館実績</dt><dd>{{ user.achivement_entrance }}</dd>
 <dt>退館実績</dt><dd>{{ user.achivement_exit }}</dd>
 </dl>
+
+<ul> 
+ {% if user.approval == False %}
+ このユーザーは未承認です。承認しますか？<br>
+<form action = "{% url 'UserStatusChange' user.application_number %}" method="post">
+	 	{% csrf_token %}
+	 	<input type="submit" name="UserStatusChange" value="承認">{{post.UserStatusChange}}</form>
+ {% endif %}
+</ul>
  
 </ul>
 <li><a href="{% url 'list' %}">一覧へ戻る</a></li>
