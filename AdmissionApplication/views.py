@@ -12,6 +12,9 @@ from django.core.mail import send_mail, EmailMessage
 from django.template.loader import get_template
 import re
 from django.db import models
+from Team5.wsgi import application
+from django.contrib.admin.utils import lookup_field
+from unicodedata import lookup
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -93,17 +96,29 @@ class UserList(ListView):
 
 class UserEntrance(TemplateView):    
     model=User
+    fields = ("application_numbrer",)
     template_name = 'AdmissionApplication/entrance.html'
+    form_class = UserEntranceForm
+    #lookup_field='application_number'
     def post(self, request, *args, **kwargs):
-        application_number = self.request.POST.get('application_number')
-        if User.objects.all().filter(pk=application_number): 
-            return HttpResponseRedirect(reverse('entrancewithID', args=(application_number,)))
-        else :
+        application_number = self.request.POST.get("application_number")
+        s=False
+        for a in User.objects.values_list("application_number",flat=True ):
+            if int(a)==int(application_number):
+                s=True
+
+                break
+        user = get_object_or_404(User, application_number=application_number)  
+        pk=user.pk  
+        if s==True : #s==True:#User.objects.filter(application_number=application_number):#User.objects.filter(application_number=application_number) :#User.objects.values_list("application_number",flat=True).get(pk=application_number) :#User.objects.all().filter(pk=application_number): 
+            s=False
+            return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
+        elif s==False :
             return HttpResponseRedirect(reverse('entrance'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form_id'] = UserEntranceLogin()
+        context['form'] = UserEntranceForm()
         return context    
 
       

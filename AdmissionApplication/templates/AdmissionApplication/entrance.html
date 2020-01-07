@@ -5,7 +5,7 @@
 {% block main %}
 <form class="ui form" action="{% url 'entrance' %}" method="post">
 {% csrf_token %}
-{{ form_id }}
+{{ form }}
 <input type="submit"/>
 </form>
 
