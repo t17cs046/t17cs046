@@ -163,7 +163,7 @@ class UserChangeDelete(TemplateView):
         context['form'] = UserEntranceForm()
         return context    
 
-
+　
 class UserChangeWithIDView(UpdateView):
     model = User
     fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
