@@ -10,7 +10,8 @@ from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import get_template
-import re
+import re, string, random
+from datetime import datetime
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -35,10 +36,11 @@ class UserAddView(CreateView):
     def form_valid(self, form):
         ctx = {'form': form}
         if form.is_valid():
+            word = string.digits + string.ascii_lowercase + string.ascii_uppercase
             user = form.save(commit=False)
-            user.application_number=1
-            user.password='asfgf'
-            #user.save()
+            user.application_number = random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
+            user.password = ''.join([random.choice(word) for i in range(8)])
+            
         if self.request.POST.get('next', '') == 'confirm':
             phone_serch = re.search(phone_regex, self.request.POST.get("phone_number"))
             if 'None' in str(phone_serch):
@@ -74,7 +76,6 @@ class UserAddView(CreateView):
 #                cc=[],
 #                bcc=[],
             ).send()
-            print(timezone.now())
             return super().form_valid(form)
                 
 def ResultView(request, **kwargs):
