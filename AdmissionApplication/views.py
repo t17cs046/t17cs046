@@ -98,8 +98,6 @@ class UserList(ListView):
         user.save()
         return HttpResponseRedirect(reverse('list')) 
     
-
-
 class UserEntrance(TemplateView):    
     model=User
     fields = ("application_numbrer",)

@@ -7,13 +7,14 @@
 <form class="ui form" action="{% url 'changedelete' %}" method="post">
 {% csrf_token %}
 {{ form }}
-{% if messages %}
-{% for message in massages %}
- 		<p><font color ="red"> {{message }} </font></p>
- 		{% endfor % }
- {% endif % }
- 
+
 <input type="submit"/>
+{% if messages %}
+{% for message in messages %}
+ 		<p><font color ="red"> {{message}} </font></p>
+ 		{% endfor %}
+{% endif %}
+
 </form>
 
 {% endblock %} 
