@@ -147,10 +147,6 @@ class UserShowWithIDView(UpdateView):
         user = get_object_or_404(User, pk=user_id)
         user.delete()
         return HttpResponseRedirect(reverse('list'))
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form_id'] = UserIdForm(initial = {'user_id' : self.kwargs.get('pk')})
-        return context    
 
 def UserStatusChange(request, pk):
     user = get_object_or_404(User, pk=pk)
@@ -159,4 +155,10 @@ def UserStatusChange(request, pk):
         if user.approval == False :
             user.approval = True
     user.save()       
+    return redirect('list')
+
+def UserRejejctChange(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    
+    user.delete()       
     return redirect('list')
