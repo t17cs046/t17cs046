@@ -17,7 +17,7 @@ from Team5.wsgi import application
 from django.contrib.admin.utils import lookup_field
 from unicodedata import lookup
 from django.core import mail
-
+from django.contrib import messages
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -63,7 +63,7 @@ class UserAddView(CreateView):
          
         if self.request.POST.get('next', '') == 'create':
             user = form.save(commit=False)
-            template = get_template('admissionapplication/mail/create_mail.html')
+            template = get_template('AdmissionApplication/mail/create_mail.html')
             mail_ctx={
                 'user_name': form.cleaned_data['user_name'],
                 'organization_name': form.cleaned_data['organization_name'],
@@ -85,7 +85,7 @@ class UserAddView(CreateView):
             return super().form_valid(form)
                 
 def ResultView(request, **kwargs):
-    return render(request, 'admissionapplication/result.html',{
+    return render(request, 'AdmissionApplication/result.html',{
         'contents': kwargs,
     })
 
@@ -154,16 +154,20 @@ class UserChangeDeleteView(TemplateView):
     model=User
     fields = ("application_numbrer",)
     template_name = 'AdmissionApplication/changedelete.html'
-    form_class = UserEntranceForm
+    form_class = UserChangeDeleteForm
     def post(self, request, *args, **kwargs):
         application_number = self.request.POST.get("application_number")
+        password = self.request.POST.get("password")
         user = get_object_or_404(User, application_number=application_number)  
         pk=user.pk  
-        return HttpResponseRedirect(reverse('changedeletewithID', kwargs={'pk':pk}))
-
+        if(user.password ==password):
+            return HttpResponseRedirect(reverse('changedeletewithID', kwargs={'pk':pk}))
+        else: 
+            messages.info(self.request,'申請番号かパスワードが間違っています.')
+            return HttpResponseRedirect(reverse('changedelete'))
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = UserEntranceForm()
+        context['form'] = UserChangeDeleteForm()
         return context    
 
 class UserChangeDeleteWithIDView(UpdateView):
@@ -189,7 +193,8 @@ class UserChangeDeleteWithIDView(UpdateView):
             user.entrance_schedule = entrance_schedule
             user.exit_schedule = exit_schedule
             user.purpose_of_admission = purpose_of_admission
-            user.save()
+            if(user.apprval == False):
+                user.save()
             return HttpResponseRedirect(reverse('changedelete'))
         elif self.request.POST.get('next', '') == 'delete':
             application_number = kwargs.get('pk')

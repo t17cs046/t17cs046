@@ -26,7 +26,12 @@ class UserEntranceForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["application_number",]
-            
+class UserChangeDeleteForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["application_number","password"]
+                       
+ 
     
 class UserIdForm(forms.Form):
     user_id = forms.IntegerField(label='ID')    
