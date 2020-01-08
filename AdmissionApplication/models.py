@@ -21,7 +21,7 @@ class User(models.Model):
     #exit_schedule = models.DateTimeField('退館予定日時',blank=True,null=True)
 
     #入館目的
-    purpose_of_admission = models.CharField('入館目的',max_length=100) 
+    purpose_of_admission = models.TextField('入館目的',max_length=100) 
     #申請時間
     application_date = models.DateTimeField('申請時間',default=timezone.now, blank=True,null=True)
     
