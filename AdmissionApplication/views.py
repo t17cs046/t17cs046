@@ -62,7 +62,7 @@ class UserAddView(CreateView):
          
         if self.request.POST.get('next', '') == 'create':
             user = form.save(commit=False)
-            template = get_template('admissionapplication/mail/create_mail.html')
+            template = get_template('AdmissionApplication/mail/create_mail.html')
             mail_ctx={
                 'user_name': form.cleaned_data['user_name'],
                 'organization_name': form.cleaned_data['organization_name'],
@@ -84,7 +84,7 @@ class UserAddView(CreateView):
             return super().form_valid(form)
                 
 def ResultView(request, **kwargs):
-    return render(request, 'admissionapplication/result.html',{
+    return render(request, 'AdmissionApplication/result.html',{
         'contents': kwargs,
     })
 
