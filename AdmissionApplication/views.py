@@ -16,6 +16,7 @@ from django.db import models
 from Team5.wsgi import application
 from django.contrib.admin.utils import lookup_field
 from unicodedata import lookup
+from django.core import mail
 
 # Create your views here.
 
@@ -167,13 +168,27 @@ class UserChangeDeleteView(TemplateView):
 
 class UserChangeDeleteWithIDView(UpdateView):
     model = User
-    fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
+    #fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
     template_name = 'AdmissionApplication/changedeletewithID.html'
+    form_class = ApplicationForm
     def post(self, request, *args, **kwargs):
         if self.request.POST.get('next', '') == 'change':
             application_number = kwargs.get('pk')
             user = get_object_or_404(User, pk=application_number)
-            user.achivement_entrance=timezone.now()
+            name = self.request.POST.get('user_name')
+            organization_name=self.request.POST.get('organization_name')
+            phone_number = self.request.POST.get('phone_number')
+            mail_address = self.request.POST.get('mail_addres')
+            entrance_schedule = self.request.POST.get('entrance_schedule')
+            exit_schedule = self.request.POST.get('exit_schedule')
+            purpose_of_admission = self.request.POST.get('purpose_of_admission')
+            user.user_name=name
+            user.organization_name = organization_name
+            user.phone_number = phone_number
+            user.mail_addres = mail_address
+            user.entrance_schedule = entrance_schedule
+            user.exit_schedule = exit_schedule
+            user.purpose_of_admission = purpose_of_admission
             user.save()
             return HttpResponseRedirect(reverse('changedelete'))
         elif self.request.POST.get('next', '') == 'delete':
@@ -183,4 +198,7 @@ class UserChangeDeleteWithIDView(UpdateView):
             return HttpResponseRedirect(reverse('changedelete'))
         else:
             return HttpResponseRedirect(reverse('changedelete'))
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_id'] =  ApplicationForm(initial = {'user_id' : self.kwargs.get('pk')})
+        return context    
