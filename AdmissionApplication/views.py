@@ -154,12 +154,39 @@ def UserStatusChange(request, pk):
     if request.method == 'POST':
         if user.approval == False :
             user.approval = True
-    user.save()       
+            
+        template = get_template('AdmissionApplication/mail/create_approval_mail.html')
+        mail_ctx={
+            'user_name': user.user_name,
+            'entrance_schedule': user.entrance_schedule,
+            'exit_schedule': user.exit_schedule,
+               }
+        EmailMessage(
+            subject='入館申請結果',
+            body=template.render(mail_ctx),
+            to=[user.mail_address],
+    #           cc=[],
+               bcc=['t17cs049@gmail.com'],
+        ).send() 
+    user.save()
+    
     return redirect('list')
 
 def UserRejejctChange(request, pk):
     user = get_object_or_404(User, pk=pk)
-    
+
+    template = get_template('AdmissionApplication/mail/create_reject_mail.html')
+    mail_ctx={
+       'user_name': user.user_name,
+            }
+    EmailMessage(
+        subject='入館申請結果',
+        body=template.render(mail_ctx),
+        to=[user.mail_address],
+    #           cc=[],
+            bcc=['t17cs049@gmail.com'],
+    ).send() 
+            
     user.delete()       
     return redirect('list')
 
