@@ -25,9 +25,14 @@
 <ul> 
  {% if user.approval == False %}
  このユーザーは未承認です。承認しますか？<br>
+ <div style="display:inline-flex">
 <form action = "{% url 'UserStatusChange' user.id %}" method="post">
 	 	{% csrf_token %}
 	 	<input type="submit" name="UserStatusChange" value="承認">{{post.UserStatusChange}}</form>
+	 	<form action="{% url 'UserRejectChange' user.id%}" method="post">
+ {% csrf_token %}
+ <input type="submit" value="拒否" onclick='return confirm("本当に拒否してよろしいですか？");'/></form>
+ </div>
  {% endif %}
 </ul>
  
