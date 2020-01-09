@@ -211,9 +211,14 @@ class UserChangeWithIDView(UpdateView):
             user.entrance_schedule = entrance_schedule
             user.exit_schedule = exit_schedule
             user.purpose_of_admission = purpose_of_admission
-            if( (user.approval == False) and (user.password==password)):
-                user.save()
-       
+            pk=user.pk
+            if(user.approval == True):
+                messages.info(self.request,'承認済のため修正できません.')
+                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
+            if(user.password != password):
+                messages.info(self.request,'パスワードが間違っています.')
+                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
+            user.save()
             return HttpResponseRedirect(reverse('changedelete'))
         elif self.request.POST.get('next', '') == 'back':
             application_number = kwargs.get('pk')
@@ -248,12 +253,15 @@ class UserDeleteWithIDView(UpdateView):
             user = get_object_or_404(User, pk=application_number)
             password = self.request.POST.get('password')
             pk=user.pk
-            if(user.password==password):
+            if(user.approval == True):
+                messages.info(self.request,'承認済のため削除できません.')
+                return HttpResponseRedirect(reverse('deletewithID', kwargs={'pk':pk}))
+            if(user.password != password):
+                messages.info(self.request,'パスワードが間違っています.')
+                return HttpResponseRedirect(reverse('deletewithID', kwargs={'pk':pk}))
+            else:
                 user.delete()
                 return HttpResponseRedirect(reverse('changedelete'))
-            else:
-                messages.info(self.request,'パスワードが間違っています.')
-                return HttpResponseRedirect(reverse('deletewithID',kwargs={'pk':pk}))
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_id'] =  ApplicationForm(initial = {'user_id' : self.kwargs.get('pk')})

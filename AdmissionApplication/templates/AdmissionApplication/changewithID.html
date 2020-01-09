@@ -18,7 +18,11 @@
             {% csrf_token %}
            {{ password_form.non_field_errors }}
               {{ password_form.as_p }}
-                  
+{% if messages %}
+{% for message in messages %}
+ 		<p><font color ="red"> {{message}} </font></p>
+ 		{% endfor %}
+{% endif %}                  
 
 <button class="ui button grey" type="submit" name="next" value="back">戻る</button>
 <button class="ui button orange" type="submit" name="next" value="change">修正</button>
