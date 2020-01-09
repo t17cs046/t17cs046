@@ -13,9 +13,18 @@
 <table>
 {{ form.as_table }}
 </table>
+
+<form action="" method="POST" name="form_change_choice_text" id="form_change_choice_text">
+            {% csrf_token %}
+            {{ password_form.non_field_errors }}
+            <div class="form-group">
+              {{ password_form.as_p }}
+            </div>
+          </form>
+
 <button class="ui button grey" type="submit" name="next" value="back">戻る</button>
 <button class="ui button orange" type="submit" name="next" value="change">修正</button>
-
  </form>
+
  
 {% endblock %} 

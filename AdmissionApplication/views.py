@@ -223,6 +223,9 @@ class UserChangeWithIDView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_id'] =  ApplicationForm(initial = {'user_id' : self.kwargs.get('pk')})
+        context.update({
+            'password_form': UserPasswordForm(**self.get_form_kwargs()),
+            })
         return context   
     
 class UserDeleteWithIDView(UpdateView): 
