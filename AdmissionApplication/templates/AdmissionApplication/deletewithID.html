@@ -29,7 +29,10 @@
  
 
 <button class="ui button grey" type="submit" name="next" value="back">戻る</button>
-<button class="ui button orange" type="submit" name="next" value="delete">削除</button>
+
+<button class="ui button grey" type="submit" name="next" value="delete" onclick='return confirm("本当に削除してよろしいですか？");'>削除</button>
+
+ 
  </form>
  
 {% endblock %} 

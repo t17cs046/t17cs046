@@ -13,10 +13,9 @@
 <table>
 {{ form.as_table }}
 </table>
-{% if user.approval %}
-<button class="ui button grey" type="submit" name="next" value="change">修正</button>
-<button class="ui button orange" type="submit" name="next" value="delete">削除</button>
-{% endif %}
+<button class="ui button grey" type="submit" name="next" value="back">戻る</button>
+<button class="ui button orange" type="submit" name="next" value="change">修正</button>
+
  </form>
  
 {% endblock %} 

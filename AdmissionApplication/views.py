@@ -177,20 +177,20 @@ class UserChangeDeleteShowWithIDView(UpdateView):
             application_number = kwargs.get('pk')
             user = get_object_or_404(User, pk=application_number)
             pk = user.pk
-            return HttpResponseRedirect(reverse('changedeletewithID', kwargs={'pk':pk}))
+            return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
         elif self.request.POST.get('next', '') == 'delete':
             application_number = kwargs.get('pk')
             user = get_object_or_404(User, pk=application_number)
             pk=user.pk
-            return HttpResponseRedirect(reverse('changedeletewithID', kwargs={'pk':pk}))
+            return HttpResponseRedirect(reverse('deletewithID', kwargs={'pk':pk}))
         else:
             return HttpResponseRedirect(reverse('changedeleteshowwidhID'))
 
 
-class UserChangeDeleteWithIDView(UpdateView):
+class UserChangeWithIDView(UpdateView):
     model = User
     #fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
-    template_name = 'AdmissionApplication/changedeletewithID.html'
+    template_name = 'AdmissionApplication/changewithID.html'
     form_class = ApplicationForm
     def post(self, request, *args, **kwargs):
         if self.request.POST.get('next', '') == 'change':
@@ -213,11 +213,11 @@ class UserChangeDeleteWithIDView(UpdateView):
             if(user.approval == False):
                 user.save()
             return HttpResponseRedirect(reverse('changedelete'))
-        elif self.request.POST.get('next', '') == 'delete':
+        elif self.request.POST.get('next', '') == 'back':
             application_number = kwargs.get('pk')
             user = get_object_or_404(User, pk=application_number)
             pk=user.pk
-            return HttpResponseRedirect(reverse('deletewithID',kwargs={'pk':pk}))
+            return HttpResponseRedirect(reverse('changedeleteshowwithID',kwargs={'pk':pk}))
         else:
             return HttpResponseRedirect(reverse('changedelete'))
     def get_context_data(self, **kwargs):
@@ -235,7 +235,7 @@ class UserDeleteWithIDView(UpdateView):
             application_number = kwargs.get('pk')
             user = get_object_or_404(User, pk=application_number)
             pk=user.pk
-            return HttpResponseRedirect(reverse('changedeletewithID', kwargs={'pk':pk}))
+            return HttpResponseRedirect(reverse('changedeleteshowwithID', kwargs={'pk':pk}))
       
         elif self.request.POST.get('next', '') == 'delete':
             application_number = kwargs.get('pk')
