@@ -203,6 +203,7 @@ class UserChangeWithIDView(UpdateView):
             entrance_schedule = self.request.POST.get('entrance_schedule')
             exit_schedule = self.request.POST.get('exit_schedule')
             purpose_of_admission = self.request.POST.get('purpose_of_admission')
+            password = self.request.POST.get('password')
             user.user_name=name
             user.organization_name = organization_name
             user.phone_number = phone_number
@@ -210,8 +211,9 @@ class UserChangeWithIDView(UpdateView):
             user.entrance_schedule = entrance_schedule
             user.exit_schedule = exit_schedule
             user.purpose_of_admission = purpose_of_admission
-            if(user.approval == False):
+            if( (user.approval == False) and (user.password==password)):
                 user.save()
+       
             return HttpResponseRedirect(reverse('changedelete'))
         elif self.request.POST.get('next', '') == 'back':
             application_number = kwargs.get('pk')
@@ -224,9 +226,10 @@ class UserChangeWithIDView(UpdateView):
         context = super().get_context_data(**kwargs)
         context['form_id'] =  ApplicationForm(initial = {'user_id' : self.kwargs.get('pk')})
         context.update({
-            'password_form': UserPasswordForm(**self.get_form_kwargs()),
+            #'password_form': UserPasswordForm(**self.get_form_kwargs()),
+            'password_form': UserPasswordForm(initial = {'password' : ''})
             })
-        return context   
+        return context
     
 class UserDeleteWithIDView(UpdateView): 
     model = User
