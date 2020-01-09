@@ -192,7 +192,8 @@ class UserChangeWithIDView(UpdateView):
     #fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
     template_name = 'AdmissionApplication/changewithID.html'
     form_class = ApplicationForm
-    def post(self, request, *args, **kwargs):
+    '''
+    def post(self,request, *args, **kwargs):
         if self.request.POST.get('next', '') == 'change':
             application_number = kwargs.get('pk')
             user = get_object_or_404(User, pk=application_number)
@@ -227,6 +228,25 @@ class UserChangeWithIDView(UpdateView):
             return HttpResponseRedirect(reverse('changedeleteshowwithID',kwargs={'pk':pk}))
         else:
             return HttpResponseRedirect(reverse('changedelete'))
+            '''
+    def form_valid(self, form):
+        ctx = {'form': form}
+        if form.is_valid():
+            word = string.digits + string.ascii_lowercase + string.ascii_uppercase
+            user = form.save(commit=False)
+        if self.request.POST.get('next', '') == 'confirm':
+            user=form.save(commit=False)
+            pk=user.pk
+            return render(self.request, 'AdmissionApplication/changeconfirm.html', ctx)
+        if self.request.POST.get('next', '') == 'back':
+            user=form.save(commit=False)
+            pk=user.pk
+            return HttpResponseRedirect(reverse('changedeleteshowwithID', kwargs={'pk':pk}))  
+         
+        if self.request.POST.get('next', '') == 'change':
+            user = form.save(commit=False)
+            user.save()
+            return self.form_valid(form)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_id'] =  ApplicationForm(initial = {'user_id' : self.kwargs.get('pk')})
