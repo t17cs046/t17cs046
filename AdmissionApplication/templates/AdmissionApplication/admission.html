@@ -7,6 +7,30 @@
  {% csrf_token %}
 <table>
  {{ form.as_table }}
+ <script>
+      $(function () {
+          let dateFormat = 'yy-mm-dd';
+          $('#id_entrance_schedule_0').datepicker({
+              dateFormat: dateFormat
+          });
+
+          $("#id_entrance_schedule_1").timeDropper({
+              format: "H:mm",
+              setCurrentTime: false,
+          });
+      });
+      $(function () {
+          let dateFormat = 'yy-mm-dd';
+          $('#id_exit_schedule_0').datepicker({
+              dateFormat: dateFormat
+          });
+
+          $("#id_exit_schedule_1").timeDropper({
+              format: "H:mm",
+              setCurrentTime: false,
+          });
+      });
+      </script>
  </table>
  
  <button type="submit" class="ui button" name="next" value="confirm">確認へ</button>
