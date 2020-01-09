@@ -1,16 +1,15 @@
 from django import forms
 from .models import User
 from pip._vendor.pkg_resources import require
-from django.forms.widgets import SplitDateTimeWidget
-
+from django.forms.widgets import DateTimeInput
 
 class ApplicationForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission"]
         widgets = {
-            "entrance_schedule" : SplitDateTimeWidget,
-            "exit_schedule" : SplitDateTimeWidget,
+            "entrance_schedule" : DateTimeInput(attrs={'type' : 'datetime-local', 'format': 'yyyy-mm-dd HH:ii'}),
+            "exit_schedule" : DateTimeInput(attrs={'type' : 'datetime-local', 'format': 'yyyy-mm-dd HH:ii'}),
             }
         
         
