@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %} 入館情報確認画面 {% endblock %}
+
+{% block main %}
+
+<ul>
+ <form method="post">
+ {% csrf_token %}
+<input type = "hidden" name = "application_number" value={{application_number}} required id="id_application_number">
+ <dl>
+<dt>入館申請番号</dt><dd>{{ user.application_number }}</dd>
+<dt>名前</dt><dd>{{ user.user_name }}</dd>
+<dt>組織名</dt><dd>{{ user.organization_name }}</dd>
+<dt>電話</dt><dd>{{ user.phone_number }}</dd>
+<dt>メール</dt><dd>{{ user.mail_address }}</dd>
+<dt>入館日時</dt><dd>{{ user.entrance_schedule }}</dd>
+<dt>退館日時</dt><dd>{{ user.exit_schedule }}</dd>
+<dt>入館目的</dt><dd>{{ user.purpose_of_admission }}</dd>
+</dl>
+ <table>
+{{ form.as_table }}
+</table>
+{% if messages %}
+{% for message in messages %}
+ 		<p><font color ="red"> {{message}} </font></p>
+ 		{% endfor %}
+{% endif %}
+ 
+
+<button class="ui button grey" type="submit" name="next" value="back">戻る</button>
+<button class="ui button orange" type="submit" name="next" value="delete">削除</button>
+ </form>
+ 
+{% endblock %} 

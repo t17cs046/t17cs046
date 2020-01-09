@@ -15,4 +15,6 @@ urlpatterns = [
 
     path('changedelete',UserChangeDeleteView.as_view(),name='changedelete'),
     path('<int:pk>/changedelete',UserChangeDeleteWithIDView.as_view(),name='changedeletewithID'),
+    path('<int:pk>/changedeleteshow',UserChangeDeleteShowWithIDView.as_view(),name='changedeleteshowwithID'),
+    path('<int:pk>/delete',UserDeleteWithIDView.as_view(),name='deletewithID'),
     ]

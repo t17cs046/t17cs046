@@ -28,7 +28,7 @@ class User(models.Model):
     #入館申請番号
     application_number = models.PositiveIntegerField('入館申請番号')
     #ワンタイムパスワード
-    password = models.CharField('パスワード',max_length=8, null=False)      
+    password = models.CharField('パスワード',max_length=8, null=False,blank=True)      
     #承認可否
     approval = models.BooleanField('承認可否',default=False)
     #入館実績

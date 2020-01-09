@@ -159,7 +159,7 @@ class UserChangeDeleteView(TemplateView):
         user = get_object_or_404(User, application_number=application_number)  
         pk=user.pk  
         if(user.password ==password):
-            return HttpResponseRedirect(reverse('changedeletewithID', kwargs={'pk':pk}))
+            return HttpResponseRedirect(reverse('changedeleteshowwithID', kwargs={'pk':pk}))
         else: 
             messages.info(self.request,'申請番号かパスワードが間違っています.')
             return HttpResponseRedirect(reverse('changedelete'))
@@ -167,6 +167,25 @@ class UserChangeDeleteView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['form'] = UserChangeDeleteForm()
         return context    
+    
+class UserChangeDeleteShowWithIDView(UpdateView):
+    model = User
+    fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
+    template_name = 'AdmissionApplication/changedeleteshowwithID.html'
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('next', '') == 'change':
+            application_number = kwargs.get('pk')
+            user = get_object_or_404(User, pk=application_number)
+            pk = user.pk
+            return HttpResponseRedirect(reverse('changedeletewithID', kwargs={'pk':pk}))
+        elif self.request.POST.get('next', '') == 'delete':
+            application_number = kwargs.get('pk')
+            user = get_object_or_404(User, pk=application_number)
+            pk=user.pk
+            return HttpResponseRedirect(reverse('changedeletewithID', kwargs={'pk':pk}))
+        else:
+            return HttpResponseRedirect(reverse('changedeleteshowwidhID'))
+
 
 class UserChangeDeleteWithIDView(UpdateView):
     model = User
@@ -191,17 +210,46 @@ class UserChangeDeleteWithIDView(UpdateView):
             user.entrance_schedule = entrance_schedule
             user.exit_schedule = exit_schedule
             user.purpose_of_admission = purpose_of_admission
-            if(user.apprval == False):
+            if(user.approval == False):
                 user.save()
             return HttpResponseRedirect(reverse('changedelete'))
         elif self.request.POST.get('next', '') == 'delete':
             application_number = kwargs.get('pk')
             user = get_object_or_404(User, pk=application_number)
-            user.delete()
-            return HttpResponseRedirect(reverse('changedelete'))
+            pk=user.pk
+            return HttpResponseRedirect(reverse('deletewithID',kwargs={'pk':pk}))
         else:
             return HttpResponseRedirect(reverse('changedelete'))
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_id'] =  ApplicationForm(initial = {'user_id' : self.kwargs.get('pk')})
-        return context    
+        return context   
+    
+class UserDeleteWithIDView(UpdateView): 
+    model = User
+    #fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
+    template_name = 'AdmissionApplication/deletewithID.html'
+    form_class = UserPasswordForm
+    def post(self, request, *args, **kwargs):
+        if self.request.POST.get('next', '') == 'back':
+            application_number = kwargs.get('pk')
+            user = get_object_or_404(User, pk=application_number)
+            pk=user.pk
+            return HttpResponseRedirect(reverse('changedeletewithID', kwargs={'pk':pk}))
+      
+        elif self.request.POST.get('next', '') == 'delete':
+            application_number = kwargs.get('pk')
+            user = get_object_or_404(User, pk=application_number)
+            password = self.request.POST.get('password')
+            pk=user.pk
+            if(user.password==password):
+                user.delete()
+                return HttpResponseRedirect(reverse('changedelete'))
+            else:
+                messages.info(self.request,'パスワードが間違っています.')
+                return HttpResponseRedirect(reverse('deletewithID',kwargs={'pk':pk}))
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_id'] =  ApplicationForm(initial = {'user_id' : self.kwargs.get('pk')})
+        context['form'] = UserPasswordForm()
+        return context   
