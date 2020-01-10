@@ -18,6 +18,7 @@ from Team5.wsgi import application
 from django.contrib.admin.utils import lookup_field
 from unicodedata import lookup
 from django.contrib import messages
+
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -119,10 +120,22 @@ class UserEntrance(TemplateView):
         for a in User.objects.values_list("application_number",flat=True ):
             if int(a)==int(application_number):
                 s=True
-        if s==True:
-            user = get_object_or_404(User, application_number=application_number)  
-            pk=user.pk 
-            return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
+        if s==True :
+            user = get_object_or_404(User, application_number=application_number)
+            entrance_time=user.entrance_schedule
+            #exit_time=user.exit_schedule
+            approval=user.approval
+            time=timezone.now()
+            if approval==True and time>entrance_time  :
+                user = get_object_or_404(User, application_number=application_number)  
+                pk=user.pk 
+                return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
+            elif approval==True :
+                messages.info(self.request, '入館申請出来る時間ではありません.')
+                return HttpResponseRedirect(reverse('entrance'))
+            else :
+                messages.info(self.request, '承認されていません.')
+                return HttpResponseRedirect(reverse('entrance'))
         else :
             messages.info(self.request, '入館申請番号が間違っています.')
             return HttpResponseRedirect(reverse('entrance'))
