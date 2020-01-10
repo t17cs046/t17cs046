@@ -17,6 +17,7 @@ from django.db import models
 from Team5.wsgi import application
 from django.contrib.admin.utils import lookup_field
 from unicodedata import lookup
+from django.db.models import Q
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -103,7 +104,17 @@ class UserList(ListView):
         user_id = self.request.POST.get('user_id')
         user = get_object_or_404(User, pk=user_id)
         user.save()
-        return HttpResponseRedirect(reverse('list')) 
+        return HttpResponseRedirect(reverse('list'))
+    
+    def get_queryset(self):
+        q_word = self.request.GET.get('query')
+ 
+        if q_word:
+            object_list = User.objects.filter(
+                Q(organization_name__icontains=q_word))
+        else:
+            object_list = User.objects.all()
+        return object_list 
     
 
 
