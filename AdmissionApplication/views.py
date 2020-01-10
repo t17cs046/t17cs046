@@ -17,6 +17,7 @@ from django.db import models
 from Team5.wsgi import application
 from django.contrib.admin.utils import lookup_field
 from unicodedata import lookup
+from django.db.models import Q
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -49,6 +50,15 @@ class UserAddView(CreateView):
             
         if self.request.POST.get('next', '') == 'confirm':
             phone_serch = re.search(phone_regex, self.request.POST.get("phone_number"))
+            
+            all_entries = User.objects.filter(approval__exact="True")
+            all_entries.object.filter(~Q(user_name=self.request.POST.get("user_name")))
+            all_entries.object.filter(~Q(organization_name=self.request.POST.get("organization_name")))
+            #自分の入館時間<他の利用者の退館時間
+            all_entries.object.filter(entrance_schdule__gte=self.request.POST.get("entrance_schedule"))
+            #他の利用者の入館時間<自分の退館時間
+            all_entries.object.filter(exit_schedule__lte=self.request.POST.get("exit_schedule"))
+            
             if (re.match('[ｦ-ﾟ]', self.request.POST.get("user_name")) != None):
                 return render(self.request, 'AdmissionApplication/warning_name.html', ctx)
             
@@ -61,6 +71,8 @@ class UserAddView(CreateView):
             elif self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):
                 return render(self.request, 'AdmissionApplication/warning_schedule.html', ctx)
             
+            elif self.request.POST.get("entrance_schedule") < self.request.POST.get("exit_schedule"):
+                return render(self.request, 'AdmissionApplication/warning_other_schedule.html', ctx)
             else:
                 return render(self.request, 'AdmissionApplication/confirm.html', ctx)
             
