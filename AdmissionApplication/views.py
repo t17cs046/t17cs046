@@ -237,6 +237,13 @@ class UserChangeWithIDView(UpdateView):
         if self.request.POST.get('next', '') == 'confirm':
             user=form.save(commit=False)
             pk=user.pk
+            password=self.request.POST.get('password')
+            if(user.approval == True):
+                messages.info(self.request,'承認済のため修正できません.')
+                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
+            if(user.password != password):
+                messages.info(self.request,'パスワードが間違っています.')
+                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
             return render(self.request, 'AdmissionApplication/changeconfirm.html', ctx)
         if self.request.POST.get('next', '') == 'back_show':
             user=form.save(commit=False)
@@ -247,6 +254,25 @@ class UserChangeWithIDView(UpdateView):
         if self.request.POST.get('next', '') == 'change':
             user = form.save(commit=False)
             user.save()
+            template = get_template('AdmissionApplication/mail/change_mail.html')
+            mail_ctx={
+                'user_name': form.cleaned_data['user_name'],
+                'organization_name': form.cleaned_data['organization_name'],
+                'phone_number': form.cleaned_data['phone_number'],
+                'mail_address': form.cleaned_data['mail_address'],
+                'entrance_schedule': form.cleaned_data['entrance_schedule'],
+                'exit_schedule': form.cleaned_data['exit_schedule'],
+                'purpose_of_admission': form.cleaned_data['purpose_of_admission'],
+                'application_number': user.application_number,
+                'password': user.password,
+                }
+            EmailMessage(
+                subject='入館申請情報修正完了',
+                body=template.render(mail_ctx),
+                to=[form.cleaned_data['mail_address']],
+#                cc=[],
+#                bcc=[],
+            ).send()
             return super().form_valid(form)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -281,6 +307,24 @@ class UserDeleteWithIDView(UpdateView):
                 messages.info(self.request,'パスワードが間違っています.')
                 return HttpResponseRedirect(reverse('deletewithID', kwargs={'pk':pk}))
             else:
+                template = get_template('AdmissionApplication/mail/delete_mail.html')
+                mail_ctx={
+                'user_name': user.user_name,
+                'organization_name': user.organization_name,
+                'phone_number': user.phone_number,
+                'mail_address': user.mail_address,
+                'entrance_schedule': user.entrance_schedule,
+                'exit_schedule': user.exit_schedule,
+                'purpose_of_admission': user.purpose_of_admission,
+                'application_number': user.application_number,
+                    }
+                EmailMessage(
+                    subject='入館申請情報削除完了',
+                    body=template.render(mail_ctx),
+                    to=[user.mail_address],
+#                    cc=[],
+#                    bcc=[],
+                ).send()
                 user.delete()
                 return HttpResponseRedirect(reverse('changedelete'))
     def get_context_data(self, **kwargs):
