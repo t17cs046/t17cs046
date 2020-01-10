@@ -183,6 +183,8 @@ class UserChangeDeleteShowWithIDView(UpdateView):
             user = get_object_or_404(User, pk=application_number)
             pk=user.pk
             return HttpResponseRedirect(reverse('deletewithID', kwargs={'pk':pk}))
+        elif self.request.POST.get('next', '') == 'back':
+            return HttpResponseRedirect(reverse('changedelete'))
         else:
             return HttpResponseRedirect(reverse('changedeleteshowwidhID'))
 
@@ -192,6 +194,7 @@ class UserChangeWithIDView(UpdateView):
     #fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
     template_name = 'AdmissionApplication/changewithID.html'
     form_class = ApplicationForm
+    success_url = '../menu_test'
     '''
     def post(self,request, *args, **kwargs):
         if self.request.POST.get('next', '') == 'change':
@@ -231,22 +234,20 @@ class UserChangeWithIDView(UpdateView):
             '''
     def form_valid(self, form):
         ctx = {'form': form}
-        if form.is_valid():
-            word = string.digits + string.ascii_lowercase + string.ascii_uppercase
-            user = form.save(commit=False)
         if self.request.POST.get('next', '') == 'confirm':
             user=form.save(commit=False)
             pk=user.pk
             return render(self.request, 'AdmissionApplication/changeconfirm.html', ctx)
-        if self.request.POST.get('next', '') == 'back':
+        if self.request.POST.get('next', '') == 'back_show':
             user=form.save(commit=False)
             pk=user.pk
             return HttpResponseRedirect(reverse('changedeleteshowwithID', kwargs={'pk':pk}))  
-         
+        if self.request.POST.get('next', '') == 'back_change':
+            return render(self.request, 'AdmissionApplication/changewithID.html', ctx) 
         if self.request.POST.get('next', '') == 'change':
             user = form.save(commit=False)
             user.save()
-            return self.form_valid(form)
+            return super().form_valid(form)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_id'] =  ApplicationForm(initial = {'user_id' : self.kwargs.get('pk')})

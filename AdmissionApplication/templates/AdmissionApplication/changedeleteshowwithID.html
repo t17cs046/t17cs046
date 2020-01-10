@@ -21,7 +21,7 @@
 <dt>入館目的</dt><dd>{{ user.purpose_of_admission }}</dd>
 <dt>承認</dt><dd>{{ user.approval }}</dd>
 </dl>
-
+<button class="ui button grey" type="submit" name="next" value="back">戻る</button>
 {% if not user.approval %}
 <button class="ui button grey" type="submit" name="next" value="change">修正</button>
 <button class="ui button orange" type="submit" name="next" value="delete">削除</button>
