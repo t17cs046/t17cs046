@@ -162,7 +162,7 @@ def UserStatusChange(request, pk):
             'exit_schedule': user.exit_schedule,
                }
         EmailMessage(
-            subject='入館申請結果',
+            subject='データセンター入館申請結果のお知らせ',
             body=template.render(mail_ctx),
             to=[user.mail_address],
     #           cc=[],
@@ -180,7 +180,7 @@ def UserRejejctChange(request, pk):
        'user_name': user.user_name,
             }
     EmailMessage(
-        subject='入館申請結果',
+        subject='データセンター入館申請結果のお知らせ',
         body=template.render(mail_ctx),
         to=[user.mail_address],
     #           cc=[],
