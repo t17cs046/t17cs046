@@ -4,6 +4,8 @@ from .views import *
 appname='admissionapplication'
 urlpatterns = [
     path('menu_test/', MenuView, name='menu'),
+    path('edit_result/', EditResultView, name='edit_result'),
+    path('delete_result/', DeleteResultView, name='delete_result'),
     path('admission/', UserAddView.as_view(), name='admission'),
     path('result/<メールアドレス>/<申請番号>/', ResultView, name='result'),
     

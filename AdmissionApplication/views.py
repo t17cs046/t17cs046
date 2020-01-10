@@ -194,7 +194,7 @@ class UserChangeWithIDView(UpdateView):
     #fields = ("user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission","application_number")
     template_name = 'AdmissionApplication/changewithID.html'
     form_class = ApplicationForm
-    success_url = '../menu_test'
+    success_url = '../edit_result'
     '''
     def post(self,request, *args, **kwargs):
         if self.request.POST.get('next', '') == 'change':
@@ -274,6 +274,8 @@ class UserChangeWithIDView(UpdateView):
 #                bcc=[],
             ).send()
             return super().form_valid(form)
+        pk=form.save(commit=False).pk
+        return render(self.request,'AdmissionApplication/edit_result.html', kwargs={'pk':pk})
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_id'] =  ApplicationForm(initial = {'user_id' : self.kwargs.get('pk')})
@@ -326,9 +328,13 @@ class UserDeleteWithIDView(UpdateView):
 #                    bcc=[],
                 ).send()
                 user.delete()
-                return render(self.request, 'AdmissionApplication/delete_result.html')
+                return HttpResponseRedirect(reverse('delete_result'))
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_id'] =  ApplicationForm(initial = {'user_id' : self.kwargs.get('pk')})
         context['form'] = UserPasswordForm()
         return context   
+def EditResultView(request):
+    return render(request, 'AdmissionApplication/edit_result.html')
+def DeleteResultView(request):
+    return render(request, 'AdmissionApplication/delete_result.html')
