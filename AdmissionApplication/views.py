@@ -45,6 +45,9 @@ class UserAddView(CreateView):
         if form.is_valid():
             word = string.digits + string.ascii_lowercase + string.ascii_uppercase
             user = form.save(commit=False)
+            random_number=random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
+            while(User.objects.filter(application_number__exact=random_number).count() > 0):
+                random_number = random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
             user.application_number = random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
             user.password = ''.join([random.choice(word) for i in range(8)])
             
