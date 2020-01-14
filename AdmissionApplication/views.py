@@ -48,7 +48,7 @@ class UserAddView(CreateView):
             random_number=random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
             while(User.objects.filter(application_number__exact=random_number).count() > 0):
                 random_number = random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
-            user.application_number = random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
+            user.application_number = random_number
             user.password = ''.join([random.choice(word) for i in range(8)])
             
         if self.request.POST.get('next', '') == 'confirm':
