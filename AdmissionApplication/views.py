@@ -51,14 +51,19 @@ class UserAddView(CreateView):
         if self.request.POST.get('next', '') == 'confirm':
             phone_serch = re.search(phone_regex, self.request.POST.get("phone_number"))
             
+            #承認済み利用者を取得
             all_entries = User.objects.filter(approval__exact="True")
-            all_entries.object.filter(~Q(user_name=self.request.POST.get("user_name")))
-            all_entries.object.filter(~Q(organization_name=self.request.POST.get("organization_name")))
-            #自分の入館時間<他の利用者の退館時間
-            all_entries.object.filter(entrance_schdule__gte=self.request.POST.get("entrance_schedule"))
-            #他の利用者の入館時間<自分の退館時間
-            all_entries.object.filter(exit_schedule__lte=self.request.POST.get("exit_schedule"))
-            
+            #氏名と異なる利用者を取得
+            all_entries = all_entries.exclude(user_name=self.request.POST.get("user_name"))
+            #組織名と異なる利用者を取得
+            all_entries = all_entries.exclude(organization_name=self.request.POST.get("organization_name"))
+            #自分の入館時間<他の利用者の退館時間<自分の退館時間
+            overlapping_1 = all_entries.filter(exit_schedule__range=(self.request.POST.get("entrance_schedule"), self.request.POST.get("exit_schedule")))
+            #自分の入館時間<他の利用者の入館時間<自分の退館時間
+            overlapping_2 = all_entries.filter(entrance_schedule__range=(self.request.POST.get("entrance_schedule"),self.request.POST.get("exit_schedule")))
+            #他の利用者の入館時間<自分の入館時間<自分の退館時間<他の利用者の退館時間
+            overlapping_3 = all_entries.filter(entrance_schedule__lt=self.request.POST.get("entrance_schedule"))
+            overlapping_3 = overlapping_3.filter(exit_schedule__gt=self.request.POST.get("exit_schedule"))
             if (re.match('[ｦ-ﾟ]', self.request.POST.get("user_name")) != None):
                 return render(self.request, 'AdmissionApplication/warning_name.html', ctx)
             
@@ -71,7 +76,7 @@ class UserAddView(CreateView):
             elif self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):
                 return render(self.request, 'AdmissionApplication/warning_schedule.html', ctx)
             
-            elif self.request.POST.get("entrance_schedule") < self.request.POST.get("exit_schedule"):
+            elif overlapping_1.count() > 0 or overlapping_2.count() > 0 or overlapping_3.count() > 0:
                 return render(self.request, 'AdmissionApplication/warning_other_schedule.html', ctx)
             else:
                 return render(self.request, 'AdmissionApplication/confirm.html', ctx)
@@ -100,7 +105,6 @@ class UserAddView(CreateView):
 #                cc=[],
                 bcc=['team05.m46@gmail.com'],
             ).send()
-            print(user.id)
             return super().form_valid(form)
                 
 def ResultView(request, **kwargs):
