@@ -67,20 +67,26 @@ class UserAddView(CreateView):
             #他の利用者の入館時間<自分の入館時間<自分の退館時間<他の利用者の退館時間
             overlapping_3 = all_entries.filter(entrance_schedule__lt=self.request.POST.get("entrance_schedule"))
             overlapping_3 = overlapping_3.filter(exit_schedule__gt=self.request.POST.get("exit_schedule"))
+
+            today = str(datetime.now().year)+ '-' + str(datetime.now().month) +'-'+ str(datetime.now().day) + ' ' + str(datetime.now().hour) + ':' + str(datetime.now().minute) 
+            print(today)
             if (re.match('[ｦ-ﾟ]', self.request.POST.get("user_name")) != None):
-                return render(self.request, 'AdmissionApplication/warning_name.html', ctx)
+                return render(self.request, 'AdmissionApplication/warning/warning_name.html', ctx)
             
             elif 'None' in str(phone_serch):
-                return render(self.request, 'AdmissionApplication/warning_phone.html', ctx)
+                return render(self.request, 'AdmissionApplication/warning/warning_phone.html', ctx)
            
             elif (re.match('[A-Za-z0-9\._+]+@[A-Za-z]+\.[A-Za-z]', self.request.POST.get("mail_address")) == None) :
-                return render(self.request, 'AdmissionApplication/warning_mail.html', ctx)      
+                return render(self.request, 'AdmissionApplication/warning/warning_mail.html', ctx)      
             
             elif self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):
-                return render(self.request, 'AdmissionApplication/warning_schedule.html', ctx)
+                return render(self.request, 'AdmissionApplication/warning/warning_schedule.html', ctx)
+            
+            elif self.request.POST.get("entrance_schedule") < today:
+                return render(self.request, 'AdmissionApplication/warning/warning_now_schedule.html', ctx)
             
             elif overlapping_1.count() > 0 or overlapping_2.count() > 0 or overlapping_3.count() > 0:
-                return render(self.request, 'AdmissionApplication/warning_other_schedule.html', ctx)
+                return render(self.request, 'AdmissionApplication/warning/warning_other_schedule.html', ctx)
             else:
                 return render(self.request, 'AdmissionApplication/confirm.html', ctx)
             
