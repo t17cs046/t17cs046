@@ -55,7 +55,7 @@ class UserAddView(CreateView):
             
         if self.request.POST.get('next', '') == 'confirm':
             phone_serch = re.search(phone_regex, self.request.POST.get("phone_number"))
-            
+            check = True
             #承認済み利用者を取得
             all_entries = User.objects.filter(approval__exact="True")
             #氏名と異なる利用者を取得
@@ -71,7 +71,7 @@ class UserAddView(CreateView):
             overlapping_3 = overlapping_3.filter(exit_schedule__gt=self.request.POST.get("exit_schedule"))
 
             today = str(datetime.now().year)+ '-' + str(datetime.now().month) +'-'+ str(datetime.now().day) + ' ' + str(datetime.now().hour) + ':' + str(datetime.now().minute) 
-            print(today)
+            """
             if (re.match('[ｦ-ﾟ]', self.request.POST.get("user_name")) != None):
                 return render(self.request, 'AdmissionApplication/warning/warning_name.html', ctx)
             
@@ -91,6 +91,33 @@ class UserAddView(CreateView):
                 return render(self.request, 'AdmissionApplication/warning/warning_other_schedule.html', ctx)
             else:
                 return render(self.request, 'AdmissionApplication/confirm.html', ctx)
+            """
+            print(today)
+            print(self.request.POST.get("entrance_schedule"))
+            print(self.request.POST.get("exit_schedule")[1])
+            print(datetime(self.request.POST.get("entrance_schedule")))  
+            if (re.match('[ｦ-ﾟ]', self.request.POST.get("user_name")) != None):
+                messages.error(self.request, '氏名に半角カナは使用できません.')
+                check = False
+            if 'None' in str(phone_serch):
+                messages.error(self.request, '有効な電話番号を入力してください．')
+                check = False           
+            if (re.match('[A-Za-z0-9\._+]+@[A-Za-z]+\.[A-Za-z]', self.request.POST.get("mail_address")) == None) :
+                messages.error(self.request, '有効なメールアドレスを入力してください.')
+                check = False      
+            if self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):
+                messages.error(self.request, '入館予定日時が退館予定日時より前になっています．')
+                check = False
+            if self.request.POST.get("entrance_schedule") < today:
+                messages.error(self.request, '入館予定日時が現在時刻より前になっています.')
+                check = False
+            if overlapping_1.count() > 0 or overlapping_2.count() > 0 or overlapping_3.count() > 0:
+                messages.error(self.request, '他の利用者の方と予定日時が重複しています.')
+                check = False
+            if check:
+                return render(self.request, 'AdmissionApplication/confirm.html', ctx)
+            else:
+                return render(self.request, 'AdmissionApplication/admission.html', ctx)
             
         if self.request.POST.get('next', '') == 'back':
             return render(self.request, 'AdmissionApplication/admission.html', ctx)      
