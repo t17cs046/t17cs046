@@ -123,10 +123,10 @@ class UserEntrance(TemplateView):
         if s==True :
             user = get_object_or_404(User, application_number=application_number)
             entrance_time=user.entrance_schedule
-            #exit_time=user.exit_schedule
+            exit_time=user.exit_schedule
             approval=user.approval
             time=timezone.now()
-            if approval==True and time>entrance_time  :
+            if approval==True and time>entrance_time and time<exit_time :
                 user = get_object_or_404(User, application_number=application_number)  
                 pk=user.pk 
                 return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
