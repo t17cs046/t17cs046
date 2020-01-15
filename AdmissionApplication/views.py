@@ -117,16 +117,36 @@ class UserEntrance(TemplateView):
     def post(self, request, *args, **kwargs):
         application_number = self.request.POST.get("application_number")
         s=False
+        who=False
+        finish=False
+
         for a in User.objects.values_list("application_number",flat=True ):
+            user = get_object_or_404(User, application_number=a)  
+            pk=user.pk 
+            #print(user.achivement_entrance)
+            #print(int(application_number))
+            #print(int(a))
+            #print( user.achivement_entrance and user.achivement_exit is None)
+            #誰か入っているか
+            if user.achivement_entrance and user.achivement_exit is None and not int(application_number)==int(a):
+                who=True
+                print(who)
+            #入館申請番号があるか
             if int(a)==int(application_number):
-                s=True
+                s=True     
         if s==True :
             user = get_object_or_404(User, application_number=application_number)
             entrance_time=user.entrance_schedule
             exit_time=user.exit_schedule
             approval=user.approval
             time=timezone.now()
-            if approval==True and time>entrance_time and time<exit_time :
+            if user.achivement_entrance and user.achivement_exit:
+                messages.info(self.request, '既に入退館済みです.')
+                return HttpResponseRedirect(reverse('entrance'))
+            elif who==True and approval==True and time>entrance_time: #and time<exit_time:
+                messages.info(self.request, '現在まだ入っている方がいらしゃいます.')
+                return HttpResponseRedirect(reverse('entrance'))
+            elif approval==True and time>entrance_time: #and time<exit_time :
                 user = get_object_or_404(User, application_number=application_number)  
                 pk=user.pk 
                 return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
