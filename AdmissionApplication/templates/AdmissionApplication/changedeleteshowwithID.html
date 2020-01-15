@@ -8,8 +8,9 @@
  <form  method="post">
  {% csrf_token %}
 <input type = "hidden" name = "application_number" value={{application_number}} required id="id_application_number">
- 
- 
+<!--
+ <a href="{{request.META.HTTP_REFERER}}">戻る</a>
+-->
 <dl>
 <dt>入館申請番号</dt><dd>{{ user.application_number }}</dd>
 <dt>名前</dt><dd>{{ user.user_name }}</dd>
@@ -21,7 +22,10 @@
 <dt>入館目的</dt><dd>{{ user.purpose_of_admission }}</dd>
 <dt>承認</dt><dd>{{ user.approval }}</dd>
 </dl>
+<!--
 <button class="ui button grey" type="submit" name="next" value="back">戻る</button>
+-->
+  <button onClick="javascript:history.go(-1);">戻る</button>
 {% if not user.approval %}
 <button class="ui button grey" type="submit" name="next" value="change">修正</button>
 <button class="ui button orange" type="submit" name="next" value="delete">削除</button>

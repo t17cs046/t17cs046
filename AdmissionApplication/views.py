@@ -183,9 +183,11 @@ class UserChangeDeleteShowWithIDView(UpdateView):
             user = get_object_or_404(User, pk=application_number)
             pk=user.pk
             return HttpResponseRedirect(reverse('deletewithID', kwargs={'pk':pk}))
+            ''' 
         elif self.request.POST.get('next', '') == 'back':
-            return HttpResponseRedirect(reverse('changedelete'))
-        else:
+            return HttpResponseRedirect(reverse('changedelete')) '''
+        
+        else :
             return HttpResponseRedirect(reverse('changedeleteshowwidhID'))
 
 
@@ -245,12 +247,13 @@ class UserChangeWithIDView(UpdateView):
                 messages.info(self.request,'パスワードが間違っています.')
                 return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
             return render(self.request, 'AdmissionApplication/changeconfirm.html', ctx)
-        if self.request.POST.get('next', '') == 'back_show':
+        '''if self.request.POST.get('next', '') == 'back_show':
             user=form.save(commit=False)
             pk=user.pk
             return HttpResponseRedirect(reverse('changedeleteshowwithID', kwargs={'pk':pk}))  
         if self.request.POST.get('next', '') == 'back_change':
             return render(self.request, 'AdmissionApplication/changewithID.html', ctx) 
+            '''
         if self.request.POST.get('next', '') == 'change':
             user = form.save(commit=False)
             user.save()
@@ -291,13 +294,13 @@ class UserDeleteWithIDView(UpdateView):
     template_name = 'AdmissionApplication/deletewithID.html'
     form_class = UserPasswordForm
     def post(self, request, *args, **kwargs):
-        if self.request.POST.get('next', '') == 'back':
+        '''if self.request.POST.get('next', '') == 'back':
             application_number = kwargs.get('pk')
             user = get_object_or_404(User, pk=application_number)
             pk=user.pk
             return HttpResponseRedirect(reverse('changedeleteshowwithID', kwargs={'pk':pk}))
-      
-        elif self.request.POST.get('next', '') == 'delete':
+      '''
+        if self.request.POST.get('next', '') == 'delete':
             application_number = kwargs.get('pk')
             user = get_object_or_404(User, pk=application_number)
             password = self.request.POST.get('password')

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} 入館情報確認画面 {% endblock %}
+{% block title %} 入館情報修正画面 {% endblock %}
 
 {% block main %}
 
@@ -8,8 +8,9 @@
  <form  method="post">
  {% csrf_token %}
 <input type = "hidden" name = "application_number" value={{application_number}} required id="id_application_number">
- 
-
+<!--
+<a href="{{request.META.HTTP_REFERER}}">戻る</a>
+-->
 <table>
 {{ form.as_table }}
 </table>
@@ -24,7 +25,10 @@
  		{% endfor %}
 {% endif %}                  
 
+<!--
 <button class="ui button grey" type="submit" name="next" value="back_show">戻る</button>
+-->
+  <button onClick="javascript:history.go(-1);">戻る</button>
 <button class="ui button orange" type="submit" name="next" value="confirm">確認</button>
  </form>
 

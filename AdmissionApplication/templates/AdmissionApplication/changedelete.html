@@ -3,6 +3,9 @@
 {% block title %} 入館申請番号入力画面 {% endblock %}
 
 {% block main %}
+<!--
+<a href="{{request.META.HTTP_REFERER}}">戻る</a>
+ -->
 
 <form class="ui form" action="{% url 'changedelete' %}" method="post">
 {% csrf_token %}
@@ -14,7 +17,7 @@
  		<p><font color ="red"> {{message}} </font></p>
  		{% endfor %}
 {% endif %}
-
+ <button onClick="javascript:history.go(-1);">戻る</button>
 </form>
 
 {% endblock %} 
