@@ -118,26 +118,20 @@ class UserEntrance(TemplateView):
         application_number = self.request.POST.get("application_number")
         s=False
         who=False
-        finish=False
-
         for a in User.objects.values_list("application_number",flat=True ):
             user = get_object_or_404(User, application_number=a)  
             pk=user.pk 
-            #print(user.achivement_entrance)
-            #print(int(application_number))
-            #print(int(a))
-            #print( user.achivement_entrance and user.achivement_exit is None)
-            #誰か入っているか
+            #他に誰か入っている人がいるか
             if user.achivement_entrance and user.achivement_exit is None and not int(application_number)==int(a):
                 who=True
                 print(who)
-            #入館申請番号があるか
+            #入力された入館申請番号があるか
             if int(a)==int(application_number):
                 s=True     
         if s==True :
             user = get_object_or_404(User, application_number=application_number)
             entrance_time=user.entrance_schedule
-            exit_time=user.exit_schedule
+            #exit_time=user.exit_schedule
             approval=user.approval
             time=timezone.now()
             if user.achivement_entrance and user.achivement_exit:
