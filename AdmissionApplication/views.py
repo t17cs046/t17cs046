@@ -176,7 +176,7 @@ class UserEntrance(TemplateView):
                 messages.info(self.request, '入館申請出来る時間が過ぎています.')
                 return HttpResponseRedirect(reverse('entrance'))
             elif who==True and approval==True and time>entrance_time :
-                messages.info(self.request, '現在まだ入っている方がいらしゃいます.')
+                messages.info(self.request, '現在まだ入っている方がいらっしゃいます.')
                 return HttpResponseRedirect(reverse('entrance'))
             elif approval==True and time>entrance_time:
                 user = get_object_or_404(User, application_number=application_number)  
