@@ -233,11 +233,6 @@ class UserChangeDeleteShowWithIDView(UpdateView):
         else :
             return HttpResponseRedirect(reverse('changedeleteshowwidhID'))
 
-    def post(self, request, *args, **kwargs):
-        user_id = self.request.POST.get('user_id')
-        user = get_object_or_404(User, pk=user_id)
-        user.delete()
-        return HttpResponseRedirect(reverse('list'))
 
 def UserStatusChange(request, pk):
     user = get_object_or_404(User, pk=pk)
