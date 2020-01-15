@@ -17,7 +17,9 @@ from django.db import models
 from Team5.wsgi import application
 from django.contrib.admin.utils import lookup_field
 from unicodedata import lookup
+from django.contrib import messages
 from django.db.models import Q
+
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -149,9 +151,46 @@ class UserEntrance(TemplateView):
     form_class = UserEntranceForm
     def post(self, request, *args, **kwargs):
         application_number = self.request.POST.get("application_number")
-        user = get_object_or_404(User, application_number=application_number)  
-        pk=user.pk  
-        return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
+        s=False
+        who=False
+        for a in User.objects.values_list("application_number",flat=True ):
+            user = get_object_or_404(User, application_number=a)  
+            pk=user.pk 
+            #他に誰か入っている人がいるか
+            if user.achivement_entrance and user.achivement_exit is None and not int(application_number)==int(a):
+                who=True
+                print(who)
+            #入力された入館申請番号があるか
+            if int(a)==int(application_number):
+                s=True     
+        if s==True :
+            user = get_object_or_404(User, application_number=application_number)
+            entrance_time=user.entrance_schedule
+            exit_time=user.exit_schedule
+            approval=user.approval
+            time=timezone.now()
+            if user.achivement_entrance and user.achivement_exit:
+                messages.info(self.request, '既に入退館済みです.')
+                return HttpResponseRedirect(reverse('entrance'))
+            elif who==True and approval==True and time>entrance_time: #and time<exit_time:
+                messages.info(self.request, '現在まだ入っている方がいらしゃいます.')
+                return HttpResponseRedirect(reverse('entrance'))
+            elif approval==True and time>entrance_time and time>exit_time: #and time<exit_time :
+                messages.info(self.request, '入館申請できる時間ではありません.')
+                return HttpResponseRedirect(reverse('entrance'))
+            elif approval==True and time>entrance_time: #and time<exit_time :
+                user = get_object_or_404(User, application_number=application_number)  
+                pk=user.pk 
+                return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
+            elif approval==True :
+                messages.info(self.request, '入館申請出来る時間ではありません.')
+                return HttpResponseRedirect(reverse('entrance'))
+            else :
+                messages.info(self.request, '承認されていません.')
+                return HttpResponseRedirect(reverse('entrance'))
+        else :
+            messages.info(self.request, '入館申請番号が間違っています.')
+            return HttpResponseRedirect(reverse('entrance'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
