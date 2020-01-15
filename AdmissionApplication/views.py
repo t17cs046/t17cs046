@@ -131,7 +131,7 @@ class UserEntrance(TemplateView):
         if s==True :
             user = get_object_or_404(User, application_number=application_number)
             entrance_time=user.entrance_schedule
-            #exit_time=user.exit_schedule
+            exit_time=user.exit_schedule
             approval=user.approval
             time=timezone.now()
             if user.achivement_entrance and user.achivement_exit:
@@ -139,6 +139,9 @@ class UserEntrance(TemplateView):
                 return HttpResponseRedirect(reverse('entrance'))
             elif who==True and approval==True and time>entrance_time: #and time<exit_time:
                 messages.info(self.request, '現在まだ入っている方がいらしゃいます.')
+                return HttpResponseRedirect(reverse('entrance'))
+            elif approval==True and time>entrance_time and time>exit_time: #and time<exit_time :
+                messages.info(self.request, '入館申請できる時間ではありません.')
                 return HttpResponseRedirect(reverse('entrance'))
             elif approval==True and time>entrance_time: #and time<exit_time :
                 user = get_object_or_404(User, application_number=application_number)  
