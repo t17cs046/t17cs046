@@ -7,6 +7,7 @@ class ApplicationForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission"]
+
         
 class UserEntranceLogin(forms.Form):
     application_number=forms.IntegerField(label='入館申請番号')
