@@ -10,14 +10,14 @@ from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import get_template
+from django.shortcuts import redirect
 import re, string, random
 from datetime import datetime
 from django.db import models
 from Team5.wsgi import application
 from django.contrib.admin.utils import lookup_field
 from unicodedata import lookup
-from django.core import mail
-from django.contrib import messages
+from django.db.models import Q
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -39,22 +39,54 @@ class UserAddView(CreateView):
     template_name = 'AdmissionApplication/admission.html'
     #success_url = '../menu_test'
 
+
     def form_valid(self, form):
         ctx = {'form': form}
         if form.is_valid():
             word = string.digits + string.ascii_lowercase + string.ascii_uppercase
             user = form.save(commit=False)
-            user.application_number = random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
+            random_number=random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
+            while(User.objects.filter(application_number__exact=random_number).count() > 0):
+                random_number = random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
+            user.application_number = random_number
             user.password = ''.join([random.choice(word) for i in range(8)])
             
         if self.request.POST.get('next', '') == 'confirm':
             phone_serch = re.search(phone_regex, self.request.POST.get("phone_number"))
-            if 'None' in str(phone_serch):
-                return render(self.request, 'AdmissionApplication/warning_phone.html', ctx)
+            
+            #承認済み利用者を取得
+            all_entries = User.objects.filter(approval__exact="True")
+            #氏名と異なる利用者を取得
+            all_entries = all_entries.exclude(user_name=self.request.POST.get("user_name"))
+            #組織名と異なる利用者を取得
+            all_entries = all_entries.exclude(organization_name=self.request.POST.get("organization_name"))
+            #自分の入館時間<他の利用者の退館時間<自分の退館時間
+            overlapping_1 = all_entries.filter(exit_schedule__range=(self.request.POST.get("entrance_schedule"), self.request.POST.get("exit_schedule")))
+            #自分の入館時間<他の利用者の入館時間<自分の退館時間
+            overlapping_2 = all_entries.filter(entrance_schedule__range=(self.request.POST.get("entrance_schedule"),self.request.POST.get("exit_schedule")))
+            #他の利用者の入館時間<自分の入館時間<自分の退館時間<他の利用者の退館時間
+            overlapping_3 = all_entries.filter(entrance_schedule__lt=self.request.POST.get("entrance_schedule"))
+            overlapping_3 = overlapping_3.filter(exit_schedule__gt=self.request.POST.get("exit_schedule"))
+
+            today = str(datetime.now().year)+ '-' + str(datetime.now().month) +'-'+ str(datetime.now().day) + ' ' + str(datetime.now().hour) + ':' + str(datetime.now().minute) 
+            print(today)
+            if (re.match('[ｦ-ﾟ]', self.request.POST.get("user_name")) != None):
+                return render(self.request, 'AdmissionApplication/warning/warning_name.html', ctx)
+            
+            elif 'None' in str(phone_serch):
+                return render(self.request, 'AdmissionApplication/warning/warning_phone.html', ctx)
+           
             elif (re.match('[A-Za-z0-9\._+]+@[A-Za-z]+\.[A-Za-z]', self.request.POST.get("mail_address")) == None) :
-                return render(self.request, 'AdmissionApplication/warning_mail.html', ctx)      
-            elif self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):# or self.request.POST.get("entrance_schedule") < self.request.POST.get("applecation_date"):
-                return render(self.request, 'AdmissionApplication/warning_schedule.html', ctx)
+                return render(self.request, 'AdmissionApplication/warning/warning_mail.html', ctx)      
+            
+            elif self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):
+                return render(self.request, 'AdmissionApplication/warning/warning_schedule.html', ctx)
+            
+            elif self.request.POST.get("entrance_schedule") < today:
+                return render(self.request, 'AdmissionApplication/warning/warning_now_schedule.html', ctx)
+            
+            elif overlapping_1.count() > 0 or overlapping_2.count() > 0 or overlapping_3.count() > 0:
+                return render(self.request, 'AdmissionApplication/warning/warning_other_schedule.html', ctx)
             else:
                 return render(self.request, 'AdmissionApplication/confirm.html', ctx)
             
@@ -80,7 +112,7 @@ class UserAddView(CreateView):
                 body=template.render(mail_ctx),
                 to=[form.cleaned_data['mail_address']],
 #                cc=[],
-#                bcc=[],
+                bcc=['team05.m46@gmail.com'],
             ).send()
             return super().form_valid(form)
                 
@@ -96,7 +128,17 @@ class UserList(ListView):
         user_id = self.request.POST.get('user_id')
         user = get_object_or_404(User, pk=user_id)
         user.save()
-        return HttpResponseRedirect(reverse('list')) 
+        return HttpResponseRedirect(reverse('list'))
+    
+    def get_queryset(self):
+        q_word = self.request.GET.get('query')
+ 
+        if q_word:
+            object_list = User.objects.filter(
+                Q(organization_name__icontains=q_word))
+        else:
+            object_list = User.objects.all()
+        return object_list 
     
 class UserEntrance(TemplateView):    
     model=User
@@ -140,7 +182,7 @@ class UserShowWithIDView(UpdateView):
     fields = ('application_number','user_name', 'organization_name', 'phone_number', 'mail_address', 'purpose_of_admission')
     template_name = 'AdmissionApplication/user_list_detail.html'
     success_url = 'list/'
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_id'] = UserIdForm(initial = {'user_id' : self.kwargs.get('pk')})
@@ -190,6 +232,53 @@ class UserChangeDeleteShowWithIDView(UpdateView):
         else :
             return HttpResponseRedirect(reverse('changedeleteshowwidhID'))
 
+    def post(self, request, *args, **kwargs):
+        user_id = self.request.POST.get('user_id')
+        user = get_object_or_404(User, pk=user_id)
+        user.delete()
+        return HttpResponseRedirect(reverse('list'))
+
+def UserStatusChange(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    
+    if request.method == 'POST':
+        if user.approval == False :
+            user.approval = True
+            
+        template = get_template('AdmissionApplication/mail/create_approval_mail.html')
+        mail_ctx={
+            'user_name': user.user_name,
+            'entrance_schedule': user.entrance_schedule,
+            'exit_schedule': user.exit_schedule,
+               }
+        EmailMessage(
+            subject='データセンター入館申請結果のお知らせ',
+            body=template.render(mail_ctx),
+            to=[user.mail_address],
+    #           cc=[],
+               bcc=['t17cs049@gmail.com'],
+        ).send() 
+    user.save()
+    
+    return redirect('list')
+
+def UserRejejctChange(request, pk):
+    user = get_object_or_404(User, pk=pk)
+
+    template = get_template('AdmissionApplication/mail/create_reject_mail.html')
+    mail_ctx={
+       'user_name': user.user_name,
+            }
+    EmailMessage(
+        subject='データセンター入館申請結果のお知らせ',
+        body=template.render(mail_ctx),
+        to=[user.mail_address],
+    #           cc=[],
+            bcc=['t17cs049@gmail.com'],
+    ).send() 
+            
+    user.delete()       
+    return redirect('list')
 
 class UserChangeWithIDView(UpdateView):
     model = User

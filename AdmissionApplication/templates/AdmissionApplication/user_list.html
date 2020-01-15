@@ -3,22 +3,43 @@
 {% block title %} 入館申請リスト {% endblock %}
 
 {% block main %}
+
+ <form action="" method="get">
+        <input name="query" value="{{ request.GET.query }}" type="text">
+        <button type="submit">検索する</button>
+    </form>
+
 <form action="{% url 'list'%}" method="post">
 {% csrf_token %}
-<table class="table">
+<table border="1" width="1500" class="table">
 	<thead class="thead-dark">
 		<tr>		
-		<th>入館申請番号</th>
- 		<th>名前</th>
-		<th>企業名</th>
+		<th>申請日時</th>
+ 		<th colspan="2">利用者情報</th>
+		<th colspan="4">入退館情報</th>
 	</tr>
 	</thead>
 	<tbody>
+	<thead class="thead-dark">
+		<tr>		
+		<th>申請日時</th>
+ 		<th>組織名</th>
+		<th>氏名</th>
+		<th>入館予定日時</th>
+ 		<th>入館実績日時</th>
+		<th>退館予定日時</th>
+		<th>退館実績日時</th>
+	</tr>
+	</thead>
 {% for user in object_list %}
 	<tr>
-	 <td scope="row">{{ user.application_number }}</td>
-	 <td><a href="{% url 'showwithID' user.id%}">{{ user.user_name }}</a></td>
+	 <td scope="row">{{ user.application_date }}</td>
 	 <td>{{ user.organization_name }}</td>
+	 <td><a href="{% url 'showwithID' user.id %}">{{ user.user_name }}</a></td>
+	 <td>{{ user.entrance_schedule }}</td>
+	 <td>{% if user.achivement_entrance != None %}{{ user.achivement_entrance }}{% endif %}</td>
+	 <td>{{ user.exit_schedule }}</td>
+	 <td>{% if user.achivement_exit != None %}{{ user.achivement_exit }}{% endif %}</td>
 	</tr>
 {% endfor %}
 </tbody>
