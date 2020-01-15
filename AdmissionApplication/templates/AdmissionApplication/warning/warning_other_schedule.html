@@ -1,11 +1,13 @@
-	{% extends "base.html" %} 
+{% extends "base.html" %} 
 
  {% block title %} Add {% endblock %}
 
  {% block main %}
+ 他の利用者と予定が重なっています．
+ 
  <form action="{% url 'admission' %}" method="post">
  {% csrf_token %}
-<table class = "table" >
+<table>
  {{ form.as_table }}
  </table>
  
