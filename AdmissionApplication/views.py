@@ -71,7 +71,7 @@ class UserAddView(CreateView):
             overlapping_3 = overlapping_3.filter(exit_schedule__gt=self.request.POST.get("exit_schedule"))
 
             today = str(datetime.now().year)+ '-' + str(datetime.now().month) +'-'+ str(datetime.now().day) + ' ' + str(datetime.now().hour) + ':' + str(datetime.now().minute) 
-            print(today)
+            
             if (re.match('[ｦ-ﾟ]', self.request.POST.get("user_name")) != None):
                 return render(self.request, 'AdmissionApplication/warning/warning_name.html', ctx)
             
@@ -159,7 +159,7 @@ class UserEntrance(TemplateView):
             #他に誰か入っている人がいるか
             if user.achivement_entrance and user.achivement_exit is None and not int(application_number)==int(a):
                 who=True
-                print(who)
+                
             #入力された入館申請番号があるか
             if int(a)==int(application_number):
                 s=True     
