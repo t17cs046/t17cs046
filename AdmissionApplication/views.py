@@ -17,8 +17,8 @@ from django.db import models
 from Team5.wsgi import application
 from django.contrib.admin.utils import lookup_field
 from unicodedata import lookup
+from django.contrib import messages
 from django.db.models import Q
-from django.utils import timezone
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -40,22 +40,54 @@ class UserAddView(CreateView):
     template_name = 'AdmissionApplication/admission.html'
     #success_url = '../menu_test'
 
+
     def form_valid(self, form):
         ctx = {'form': form}
         if form.is_valid():
             word = string.digits + string.ascii_lowercase + string.ascii_uppercase
             user = form.save(commit=False)
-            user.application_number = random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
+            random_number=random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
+            while(User.objects.filter(application_number__exact=random_number).count() > 0):
+                random_number = random.randrange(999) + int(datetime.now().strftime('%y')) * 100000 + int(datetime.now().strftime('%m')) * 1000
+            user.application_number = random_number
             user.password = ''.join([random.choice(word) for i in range(8)])
             
         if self.request.POST.get('next', '') == 'confirm':
             phone_serch = re.search(phone_regex, self.request.POST.get("phone_number"))
-            if 'None' in str(phone_serch):
-                return render(self.request, 'AdmissionApplication/warning_phone.html', ctx)
+            
+            #承認済み利用者を取得
+            all_entries = User.objects.filter(approval__exact="True")
+            #氏名と異なる利用者を取得
+            all_entries = all_entries.exclude(user_name=self.request.POST.get("user_name"))
+            #組織名と異なる利用者を取得
+            all_entries = all_entries.exclude(organization_name=self.request.POST.get("organization_name"))
+            #自分の入館時間<他の利用者の退館時間<自分の退館時間
+            overlapping_1 = all_entries.filter(exit_schedule__range=(self.request.POST.get("entrance_schedule"), self.request.POST.get("exit_schedule")))
+            #自分の入館時間<他の利用者の入館時間<自分の退館時間
+            overlapping_2 = all_entries.filter(entrance_schedule__range=(self.request.POST.get("entrance_schedule"),self.request.POST.get("exit_schedule")))
+            #他の利用者の入館時間<自分の入館時間<自分の退館時間<他の利用者の退館時間
+            overlapping_3 = all_entries.filter(entrance_schedule__lt=self.request.POST.get("entrance_schedule"))
+            overlapping_3 = overlapping_3.filter(exit_schedule__gt=self.request.POST.get("exit_schedule"))
+
+            today = str(datetime.now().year)+ '-' + str(datetime.now().month) +'-'+ str(datetime.now().day) + ' ' + str(datetime.now().hour) + ':' + str(datetime.now().minute) 
+            
+            if (re.match('[ｦ-ﾟ]', self.request.POST.get("user_name")) != None):
+                return render(self.request, 'AdmissionApplication/warning/warning_name.html', ctx)
+            
+            elif 'None' in str(phone_serch):
+                return render(self.request, 'AdmissionApplication/warning/warning_phone.html', ctx)
+           
             elif (re.match('[A-Za-z0-9\._+]+@[A-Za-z]+\.[A-Za-z]', self.request.POST.get("mail_address")) == None) :
-                return render(self.request, 'AdmissionApplication/warning_mail.html', ctx)      
-            elif self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):# or self.request.POST.get("entrance_schedule") < self.request.POST.get("applecation_date"):
-                return render(self.request, 'AdmissionApplication/warning_schedule.html', ctx)
+                return render(self.request, 'AdmissionApplication/warning/warning_mail.html', ctx)      
+            
+            elif self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):
+                return render(self.request, 'AdmissionApplication/warning/warning_schedule.html', ctx)
+            
+            elif self.request.POST.get("entrance_schedule") < today:
+                return render(self.request, 'AdmissionApplication/warning/warning_now_schedule.html', ctx)
+            
+            elif overlapping_1.count() > 0 or overlapping_2.count() > 0 or overlapping_3.count() > 0:
+                return render(self.request, 'AdmissionApplication/warning/warning_other_schedule.html', ctx)
             else:
                 return render(self.request, 'AdmissionApplication/confirm.html', ctx)
             
@@ -81,7 +113,7 @@ class UserAddView(CreateView):
                 body=template.render(mail_ctx),
                 to=[form.cleaned_data['mail_address']],
 #                cc=[],
-#                bcc=[],
+                bcc=['team05.m46@gmail.com'],
             ).send()
             return super().form_valid(form)
                 
@@ -118,9 +150,46 @@ class UserEntrance(TemplateView):
     form_class = UserEntranceForm
     def post(self, request, *args, **kwargs):
         application_number = self.request.POST.get("application_number")
-        user = get_object_or_404(User, application_number=application_number)  
-        pk=user.pk  
-        return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
+        s=False
+        who=False
+        for a in User.objects.values_list("application_number",flat=True ):
+            user = get_object_or_404(User, application_number=a)  
+            pk=user.pk 
+            #他に誰か入っている人がいるか
+            if user.achivement_entrance and user.achivement_exit is None and not int(application_number)==int(a):
+                who=True
+                
+            #入力された入館申請番号があるか
+            if int(a)==int(application_number):
+                s=True     
+        if s==True :
+            user = get_object_or_404(User, application_number=application_number)
+            entrance_time=user.entrance_schedule
+            exit_time=user.exit_schedule
+            approval=user.approval
+            time=timezone.now()
+            if user.achivement_entrance and user.achivement_exit:
+                messages.info(self.request, '既に入退館済みです.')
+                return HttpResponseRedirect(reverse('entrance'))
+            elif approval==True and time>entrance_time and time>exit_time and user.achivement_entrance==None:
+                messages.info(self.request, '入館申請出来る時間が過ぎています.')
+                return HttpResponseRedirect(reverse('entrance'))
+            elif who==True and approval==True and time>entrance_time :
+                messages.info(self.request, '現在まだ入っている方がいらっしゃいます.')
+                return HttpResponseRedirect(reverse('entrance'))
+            elif approval==True and time>entrance_time:
+                user = get_object_or_404(User, application_number=application_number)  
+                pk=user.pk 
+                return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
+            elif approval==True :
+                messages.info(self.request, '入館申請出来る時間ではありません.')
+                return HttpResponseRedirect(reverse('entrance'))
+            else :
+                messages.info(self.request, '承認されていません.')
+                return HttpResponseRedirect(reverse('entrance'))
+        else :
+            messages.info(self.request, '入館申請番号が間違っています.')
+            return HttpResponseRedirect(reverse('entrance'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

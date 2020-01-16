@@ -5,17 +5,26 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>{% block title %} 入館申請 メインページ {% endblock %}</title>
-		<link rel="stylesheet" href="{% static '/bootstrap/css/bootstrap.min.css' %}">
+		<link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+		<link rel="stylesheet" href="{% static 'bootstrap/css/original_style.css' %}">
 </head>
 <body>
-	<div class="container">
-	<nav class="nav">
-			<div class="navbar-brand">MyPage</div>
+<div class="container">
+	<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+	  <a href="#" class="navbar-brand">データセンター</a>
+
+	  <div class="collapse navbar-collapse" id="navmenu2a">
+	    <div class="navbar-nav">
+	      <a class="nav-item nav-link" href="{% url 'admission' %}">入館申請</a>
+	      <a class="nav-item nav-link" href="{% url 'admission' %}">修正・削除</a>
+	      <a class="nav-item nav-link" href="{% url 'entrance' %}">入館・退館</a>
+	    </div>
+	  </div>
 	</nav>
-	</div>
+	<br />
 
 {% block main %}
 {% endblock %}
-
+</div>
 </body>
 </html>
