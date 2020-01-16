@@ -13,6 +13,8 @@ urlpatterns = [
     path('<int:pk>/userrejectChange', UserRejejctChange, name='UserRejectChange'),
     
     path('entrance',UserEntrance.as_view(),name='entrance'),
-    path('<int:pk>/entrance',UserEntranceWithIDView.as_view(),name='entrancewithID')
+    path('<int:pk>/entrance',UserEntranceWithIDView.as_view(),name='entrancewithID'),
+    
+    path('schedule', UserScheduleList.as_view(), name='schedulelist'),
 
     ]
