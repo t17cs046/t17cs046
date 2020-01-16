@@ -12,14 +12,13 @@ from django.core.mail import send_mail, EmailMessage
 from django.template.loader import get_template
 from django.shortcuts import redirect
 import re, string, random
-from datetime import datetime
+from datetime import date, datetime
 from django.db import models
 from Team5.wsgi import application
 from django.contrib.admin.utils import lookup_field
 from unicodedata import lookup
 from django.contrib import messages
 from django.db.models import Q
-
 # Create your views here.
 
 phone_regex = re.compile(r'''(
@@ -140,7 +139,7 @@ class UserList(ListView):
         user_id = self.request.POST.get('user_id')
         user = get_object_or_404(User, pk=user_id)
         user.save()
-        return HttpResponseRedirect(reverse('list'))
+        return HttpResponseRedirect(reverse('list')).order_by('-entrance_schedule')
     
     def get_queryset(self):
         q_word = self.request.GET.get('query')
@@ -258,7 +257,7 @@ def UserStatusChange(request, pk):
             body=template.render(mail_ctx),
             to=[user.mail_address],
     #           cc=[],
-               bcc=['t17cs049@gmail.com'],
+    #           bcc=[],
         ).send() 
     user.save()
     
@@ -276,9 +275,29 @@ def UserRejejctChange(request, pk):
         body=template.render(mail_ctx),
         to=[user.mail_address],
     #           cc=[],
-            bcc=['t17cs049@gmail.com'],
+    #        bcc=[],
     ).send() 
             
     user.delete()       
     return redirect('list')
 
+class UserScheduleList(ListView):
+    model = User
+    template_name = 'AdmissionApplication/schedule_list.html'
+    date = timezone.now()
+
+    def post(self, request, *args, **kwargs):
+#       user_id = self.request.POST.get('user_id')
+#        user = get_object_or_404(User, pk=user_id)
+        users = User.objects.filter(entrance_schedule__year=2020)
+        print(users.count())
+        for user in users:
+            user.save()
+        return HttpResponseRedirect(reverse('schedulelist'))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['schedule_list'] = User.objects.filter(
+            Q(entrance_schedule__year=date.today().year,entrance_schedule__month=date.today().month,entrance_schedule__day__gte=date.today().day) | Q(entrance_schedule__year=date.today().year,entrance_schedule__month__gte=date.today().month+1) | Q(entrance_schedule__year__gte=date.today().year+1)
+            ).order_by("entrance_schedule")
+        return context

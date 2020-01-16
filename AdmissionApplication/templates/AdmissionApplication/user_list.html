@@ -4,10 +4,10 @@
 
 {% block main %}
 
- <form action="" method="get">
+ <br><form action="" method="get">
         <input name="query" value="{{ request.GET.query }}" type="text">
-        <button type="submit">検索する</button>
-    </form>
+        <button type="submit">検索</button>
+    </form><br>
 
 <form action="{% url 'list'%}" method="post">
 {% csrf_token %}
@@ -44,4 +44,7 @@
 {% endfor %}
 </tbody>
 </table>
+
+<br><a href="{% url 'menu' %}"><button type="button" class="btn btn-light">最初に戻る</button></a>
+
 {% endblock %}
