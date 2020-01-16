@@ -7,10 +7,6 @@ class ApplicationForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["user_name", "organization_name", "phone_number", "mail_address", "entrance_schedule", "exit_schedule", "purpose_of_admission"]
-        widgets = {
-            "entrance_schedule" : DateTimeInput(attrs={'type' : 'datetime-local', 'format': 'yyyy-mm-dd HH:ii'}),
-            "exit_schedule" : DateTimeInput(attrs={'type' : 'datetime-local', 'format': 'yyyy-mm-dd HH:ii'}),
-            }
         
         
 class UserEntranceLogin(forms.Form):

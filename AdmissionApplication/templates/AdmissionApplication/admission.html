@@ -12,8 +12,20 @@
  {% csrf_token %}
 <table class = "table" >
  {{ form.as_table }}
+ <script>
+ $(function () {
+	$('#id_entrance_schedule').datetimepicker({
+		format : 'Y-m-d H:i'
+	});
+	});
+ $(function () {
+	$('#id_exit_schedule').datetimepicker({
+		format : 'Y-m-d H:i'
+	});
+	});
+	</script>
  </table>
-
+ 
  
  <button type="submit" class="ui button" name="next" value="confirm">確認へ</button>
  </form>

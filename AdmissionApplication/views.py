@@ -69,13 +69,14 @@ class UserAddView(CreateView):
             #組織名と異なる利用者を取得
             all_entries = all_entries.exclude(organization_name=form_organization_name)
             #自分の入館時間<他の利用者の退館時間<自分の退館時間
+            """
             overlapping_1 = all_entries.filter(exit_schedule__range=(form_entrance_schedule, form_exit_schedule))
             #自分の入館時間<他の利用者の入館時間<自分の退館時間
             overlapping_2 = all_entries.filter(entrance_schedule__range=(form_entrance_schedule, form_exit_schedule))
             #他の利用者の入館時間<自分の入館時間<自分の退館時間<他の利用者の退館時間
             overlapping_3 = all_entries.filter(entrance_schedule__lt=form_entrance_schedule)
             overlapping_3 = overlapping_3.filter(exit_schedule__gt=form_exit_schedule)
-
+"""
             today = str(datetime.now().year)+ '-' + str(datetime.now().month) +'-'+ str(datetime.now().day) + ' ' + str(datetime.now().hour) + ':' + str(datetime.now().minute) 
         
             print(today)
@@ -96,9 +97,11 @@ class UserAddView(CreateView):
             if form_entrance_schedule < today:
                 messages.error(self.request, '入館予定日時が現在時刻より前になっています.')
                 check = False
+            """
             if overlapping_1.count() > 0 or overlapping_2.count() > 0 or overlapping_3.count() > 0:
                 messages.error(self.request, '他の利用者の方と予定日時が重複しています.')
                 check = False
+            """
             if check:
                 return render(self.request, 'AdmissionApplication/confirm.html', ctx)
             else:
