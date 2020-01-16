@@ -54,43 +54,53 @@ class UserAddView(CreateView):
             user.password = ''.join([random.choice(word) for i in range(8)])
             
         if self.request.POST.get('next', '') == 'confirm':
-            phone_serch = re.search(phone_regex, self.request.POST.get("phone_number"))
-            
+            form_user_name = self.request.POST.get("user_name")
+            form_organization_name = self.request.POST.get("organization_name")
+            form_phone_number = self.request.POST.get("phone_number")
+            form_mail_address  = self.request.POST.get("mail_address")
+            form_entrance_schedule = self.request.POST.get("entrance_schedule")
+            form_exit_schedule = self.request.POST.get("exit_schedule")
+            phone_serch = re.search(phone_regex, form_phone_number)
+            check = True
             #承認済み利用者を取得
             all_entries = User.objects.filter(approval__exact="True")
             #氏名と異なる利用者を取得
-            all_entries = all_entries.exclude(user_name=self.request.POST.get("user_name"))
+            all_entries = all_entries.exclude(user_name=form_user_name)
             #組織名と異なる利用者を取得
-            all_entries = all_entries.exclude(organization_name=self.request.POST.get("organization_name"))
+            all_entries = all_entries.exclude(organization_name=form_organization_name)
             #自分の入館時間<他の利用者の退館時間<自分の退館時間
-            overlapping_1 = all_entries.filter(exit_schedule__range=(self.request.POST.get("entrance_schedule"), self.request.POST.get("exit_schedule")))
+            
+            overlapping_1 = all_entries.filter(exit_schedule__range=(form_entrance_schedule, form_exit_schedule))
             #自分の入館時間<他の利用者の入館時間<自分の退館時間
-            overlapping_2 = all_entries.filter(entrance_schedule__range=(self.request.POST.get("entrance_schedule"),self.request.POST.get("exit_schedule")))
+            overlapping_2 = all_entries.filter(entrance_schedule__range=(form_entrance_schedule, form_exit_schedule))
             #他の利用者の入館時間<自分の入館時間<自分の退館時間<他の利用者の退館時間
-            overlapping_3 = all_entries.filter(entrance_schedule__lt=self.request.POST.get("entrance_schedule"))
-            overlapping_3 = overlapping_3.filter(exit_schedule__gt=self.request.POST.get("exit_schedule"))
+            overlapping_3 = all_entries.filter(entrance_schedule__lt=form_entrance_schedule)
+            overlapping_3 = overlapping_3.filter(exit_schedule__gt=form_exit_schedule)
 
-            today = str(datetime.now().year)+ '-' + str(datetime.now().month) +'-'+ str(datetime.now().day) + ' ' + str(datetime.now().hour) + ':' + str(datetime.now().minute) 
-            
-            if (re.match('[ｦ-ﾟ]', self.request.POST.get("user_name")) != None):
-                return render(self.request, 'AdmissionApplication/warning/warning_name.html', ctx)
-            
-            elif 'None' in str(phone_serch):
-                return render(self.request, 'AdmissionApplication/warning/warning_phone.html', ctx)
+            today = datetime.now().strftime('%Y-%m-%d %H:%M')
            
-            elif (re.match('[A-Za-z0-9\._+]+@[A-Za-z]+\.[A-Za-z]', self.request.POST.get("mail_address")) == None) :
-                return render(self.request, 'AdmissionApplication/warning/warning_mail.html', ctx)      
-            
-            elif self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):
-                return render(self.request, 'AdmissionApplication/warning/warning_schedule.html', ctx)
-            
-            elif self.request.POST.get("entrance_schedule") < today:
-                return render(self.request, 'AdmissionApplication/warning/warning_now_schedule.html', ctx)
-            
-            elif overlapping_1.count() > 0 or overlapping_2.count() > 0 or overlapping_3.count() > 0:
-                return render(self.request, 'AdmissionApplication/warning/warning_other_schedule.html', ctx)
-            else:
+            if (re.match('[ｦ-ﾟ]', form_user_name) != None):
+                messages.error(self.request, '氏名に半角カナは使用できません.')
+                check = False
+            if 'None' in str(phone_serch):
+                messages.error(self.request, '有効な電話番号を入力してください．')
+                check = False           
+            if (re.match('[A-Za-z0-9\._+]+@[A-Za-z]+\.[A-Za-z]', form_mail_address) == None) :
+                messages.error(self.request, '有効なメールアドレスを入力してください.')
+                check = False      
+            if form_entrance_schedule > form_exit_schedule:
+                messages.error(self.request, '入館予定日時が退館予定日時より前になっています．')
+                check = False
+            if form_entrance_schedule < today:
+                messages.error(self.request, '入館予定日時が現在時刻より前になっています.')
+                check = False
+            if overlapping_1.count() > 0 or overlapping_2.count() > 0 or overlapping_3.count() > 0:
+                messages.error(self.request, '他の利用者の方と予定日時が重複しています.')
+                check = False
+            if check:
                 return render(self.request, 'AdmissionApplication/confirm.html', ctx)
+            else:
+                return render(self.request, 'AdmissionApplication/admission.html', ctx)
             
         if self.request.POST.get('next', '') == 'back':
             return render(self.request, 'AdmissionApplication/admission.html', ctx)      

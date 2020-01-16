@@ -3,10 +3,28 @@
  {% block title %} Add {% endblock %}
 
  {% block main %}
+  {% if messages %}
+{% for message in messages %}
+      <p><font size="2px" color="red"> {{ message }}</font></p>
+        {% endfor %}
+ {% endif %} 
  <form action="{% url 'admission' %}" method="post">
  {% csrf_token %}
 <table class = "table" >
  {{ form.as_table }}
+ <script>
+ $(function () {
+	$.datetimepicker.setLocale("ja");
+	$('#id_entrance_schedule').datetimepicker({
+		format : 'Y-m-d H:i',
+		step : 10
+	});
+	
+	$('#id_exit_schedule').datetimepicker({
+		format : 'Y-m-d H:i'
+	});
+	});
+	</script>
  </table>
  
  <button type="submit" class="btn btn-outline-primary" name="next" value="confirm">確認へ</button>
