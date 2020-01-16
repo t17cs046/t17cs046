@@ -169,7 +169,7 @@ class UserEntrance(TemplateView):
             #他に誰か入っている人がいるか
             if user.achivement_entrance and user.achivement_exit is None and not int(application_number)==int(a):
                 who=True
-                print(who)
+                
             #入力された入館申請番号があるか
             if int(a)==int(application_number):
                 s=True     
@@ -182,13 +182,13 @@ class UserEntrance(TemplateView):
             if user.achivement_entrance and user.achivement_exit:
                 messages.info(self.request, '既に入退館済みです.')
                 return HttpResponseRedirect(reverse('entrance'))
-            elif who==True and approval==True and time>entrance_time: #and time<exit_time:
-                messages.info(self.request, '現在まだ入っている方がいらしゃいます.')
+            elif approval==True and time>entrance_time and time>exit_time and user.achivement_entrance==None:
+                messages.info(self.request, '入館申請出来る時間が過ぎています.')
                 return HttpResponseRedirect(reverse('entrance'))
-            elif approval==True and time>entrance_time and time>exit_time: #and time<exit_time :
-                messages.info(self.request, '入館申請できる時間ではありません.')
+            elif who==True and approval==True and time>entrance_time :
+                messages.info(self.request, '現在まだ入っている方がいらっしゃいます.')
                 return HttpResponseRedirect(reverse('entrance'))
-            elif approval==True and time>entrance_time: #and time<exit_time :
+            elif approval==True and time>entrance_time:
                 user = get_object_or_404(User, application_number=application_number)  
                 pk=user.pk 
                 return HttpResponseRedirect(reverse('entrancewithID', kwargs={'pk':pk}))
