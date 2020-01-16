@@ -3,6 +3,12 @@
 {% block title %} 入館申請リスト {% endblock %}
 
 {% block main %}
+
+ <form action="" method="get">
+        <input name="query" value="{{ request.GET.query }}" type="text">
+        <button type="submit">検索する</button>
+    </form>
+
 <form action="{% url 'list'%}" method="post">
 {% csrf_token %}
 <table border="1" width="1500" class="table">
