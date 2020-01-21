@@ -282,7 +282,7 @@ class UserChangeWithIDView(UpdateView):
     template_name = 'AdmissionApplication/changewithID.html'
     form_class = ApplicationForm
     success_url = '../edit_result'
-    '''
+    
     def post(self,request, *args, **kwargs):
         if self.request.POST.get('next', '') == 'change':
             application_number = kwargs.get('pk')
@@ -309,8 +309,52 @@ class UserChangeWithIDView(UpdateView):
             if(user.password != password):
                 messages.info(self.request,'パスワードが間違っています.')
                 return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
+            #承認済み利用者を取得
+            all_entries = User.objects.filter(approval__exact="True")
+            #氏名と異なる利用者を取得
+            all_entries = all_entries.exclude(user_name=self.request.POST.get("user_name"))
+            #組織名と異なる利用者を取得
+            all_entries = all_entries.exclude(organization_name=self.request.POST.get("organization_name"))
+            #自分の入館時間<他の利用者の退館時間<自分の退館時間
+            overlapping_1 = all_entries.filter(exit_schedule__range=(self.request.POST.get("entrance_schedule"), self.request.POST.get("exit_schedule")))
+            #自分の入館時間<他の利用者の入館時間<自分の退館時間
+            overlapping_2 = all_entries.filter(entrance_schedule__range=(self.request.POST.get("entrance_schedule"),self.request.POST.get("exit_schedule")))
+            #他の利用者の入館時間<自分の入館時間<自分の退館時間<他の利用者の退館時間
+            overlapping_3 = all_entries.filter(entrance_schedule__lt=self.request.POST.get("entrance_schedule"))
+            overlapping_3 = overlapping_3.filter(exit_schedule__gt=self.request.POST.get("exit_schedule"))
+            today = str(datetime.now().year)+ '-' + str(datetime.now().month) +'-'+ str(datetime.now().day) + ' ' + str(datetime.now().hour) + ':' + str(datetime.now().minute) 
+            if overlapping_1.count() > 0 or overlapping_2.count() > 0 or overlapping_3.count() > 0:
+                messages.info(self.request,'他の利用者と時間が重複しています.')
+                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
+            elif self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):
+                messages.info(self.request,'正しい入退館時間を入力してください.')
+                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
+            
+            elif self.request.POST.get("entrance_schedule") < today:
+                messages.info(self.request,'正しい入退館時間を入力してください.')
+                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
+                
+            template = get_template('AdmissionApplication/mail/change_mail.html')
+            mail_ctx={
+                'user_name': user.user_name,
+                'organization_name': user.organization_name,
+                'phone_number': user.phone_number,
+                'mail_address': user.mail_address,
+                'entrance_schedule': user.entrance_schedule,
+                'exit_schedule': user.exit_schedule,
+                'purpose_of_admission': user.purpose_of_admission,
+                'application_number': user.application_number,
+                'password': user.password,
+                }
+            EmailMessage(
+                subject='入館申請情報修正完了',
+                body=template.render(mail_ctx),
+                to=[user.mail_address],
+#                cc=[],
+#                bcc=[],
+            ).send()
             user.save()
-            return HttpResponseRedirect(reverse('changedelete'))
+            return HttpResponseRedirect(reverse('edit_result'))
         elif self.request.POST.get('next', '') == 'back':
             application_number = kwargs.get('pk')
             user = get_object_or_404(User, pk=application_number)
@@ -332,13 +376,14 @@ class UserChangeWithIDView(UpdateView):
                 messages.info(self.request,'パスワードが間違っています.')
                 return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
             return render(self.request, 'AdmissionApplication/changeconfirm.html', ctx)
-        '''if self.request.POST.get('next', '') == 'back_show':
+        if self.request.POST.get('next', '') == 'back_show':
             user=form.save(commit=False)
             pk=user.pk
             return HttpResponseRedirect(reverse('changedeleteshowwithID', kwargs={'pk':pk}))  
         if self.request.POST.get('next', '') == 'back_change':
             return render(self.request, 'AdmissionApplication/changewithID.html', ctx) 
-            '''
+            
+            
         if self.request.POST.get('next', '') == 'change':
             user = form.save(commit=False)
             user.save()
@@ -364,6 +409,7 @@ class UserChangeWithIDView(UpdateView):
             return super().form_valid(form)
         pk=form.save(commit=False).pk
         return render(self.request,'AdmissionApplication/edit_result.html', kwargs={'pk':pk})
+   '''
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_id'] =  ApplicationForm(initial = {'user_id' : self.kwargs.get('pk')})
