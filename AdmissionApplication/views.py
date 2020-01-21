@@ -301,3 +301,13 @@ class UserScheduleList(ListView):
             Q(entrance_schedule__year=date.today().year,entrance_schedule__month=date.today().month,entrance_schedule__day__gte=date.today().day) | Q(entrance_schedule__year=date.today().year,entrance_schedule__month__gte=date.today().month+1) | Q(entrance_schedule__year__gte=date.today().year+1)
             ).order_by("entrance_schedule")
         return context
+    
+    def get_queryset(self):
+        schedule = self.request.GET.get('schedule')
+        print(schedule)
+        if schedule:
+            object_list = User.objects.filter(entrance_schedule__gte=schedule)
+        else:
+            object_list = None
+        return object_list 
+    
