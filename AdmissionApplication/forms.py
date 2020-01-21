@@ -35,6 +35,7 @@ class UserPasswordForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["password"]
+#    user_id=forms.IntegerField(label='ID')
     
 class UserIdForm(forms.Form):
     user_id = forms.IntegerField(label='ID')    
