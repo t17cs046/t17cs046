@@ -3,11 +3,10 @@
 <html lang="ja">
 <head>
 	<script
-		src="https://code.jquery.com/jquery-3.4.1.js"
-		integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
-		crossorigin="anonymous">
+		src = "https://code.jquery.com/jquery-3.4.1.js"
+		integrity = "sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+		crossorigin = "anonymous">
 	</script>
-
 	<link 
 		rel="stylesheet" 
 		href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.19/jquery.datetimepicker.css" 
@@ -18,7 +17,6 @@
 		integrity="sha256-FEqEelWI3WouFOo2VWP/uJfs1y8KJ++FLh2Lbqc8SJk=" 
 		crossorigin="anonymous">
 	</script>
-
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>{% block title %} 入館申請 メインページ {% endblock %}</title>
@@ -28,7 +26,7 @@
 <body>
 <div class="container">
 	<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-	  <a href="#" class="navbar-brand">データセンター</a>
+	  <a href="{% url 'menu' %}" class="navbar-brand">データセンター</a>
 
 	  <div class="collapse navbar-collapse" id="navmenu2a">
 	    <div class="navbar-nav">
