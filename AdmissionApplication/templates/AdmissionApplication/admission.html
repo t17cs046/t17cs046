@@ -3,6 +3,11 @@
  {% block title %} Add {% endblock %}
 
  {% block main %}
+  {% if messages %}
+{% for message in messages %}
+      <p><font size="2px" color="red"> {{ message }}</font></p>
+        {% endfor %}
+ {% endif %} 
  <form action="{% url 'admission' %}" method="post">
  {% csrf_token %}
 <table class = "table" >
@@ -23,6 +28,6 @@
 	</script>
  </table>
  
- <button type="submit" class="ui button" name="next" value="confirm">確認へ</button>
+ <button type="submit" class="btn btn-outline-primary" name="next" value="confirm">確認へ</button>
  </form>
  {% endblock %} 
