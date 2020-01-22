@@ -5,7 +5,7 @@
  {% block main %}
   {% if messages %}
 {% for message in messages %}
-      <p><font size="2px" color="red"> {{ message }}</font></p>
+      <div  class="alert alert-danger" role="alert"> {{ message }}</div>
         {% endfor %}
  {% endif %} 
  <form action="{% url 'admission' %}" method="post">
