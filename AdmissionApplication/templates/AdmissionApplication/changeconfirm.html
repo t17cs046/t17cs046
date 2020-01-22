@@ -1,0 +1,28 @@
+{% block title %} add {% endblock %}
+{% block content %}
+              <div class="header"><h3>入館情報修正</h3></div>
+                <p>修正内容を確認してください</p>
+                <table>
+                    <tr><td>氏名</td><td>{{form.user_name.value}}</td></tr>
+                    <tr><td>組織名</td><td>{{form.organization_name.value}}</td></tr>
+                    <tr><td>電話番号</td><td>{{form.phone_number.value}}</td></tr>
+                    <tr><td>メールアドレス</td><td>{{form.mail_address.value}}</td></tr>
+                	<tr><td>入館予定</td><td>{{form.entrance_schedule.value}}</td></tr>
+                    <tr><td>退館予定</td><td>{{form.exit_schedule.value}}</td></tr>
+                    <tr><td>入館目的</td><td>{{form.purpose_of_admission.value}}</td></tr>
+                </table>
+                <form class="ui form" action="{% url 'changewithID' user.id %}" method="POST">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        {{field.as_hidden}}
+                    {% endfor %}
+                     <button onClick="javascript:history.go(-1);">戻る</button>
+<!--
+<button class="ui button grey" type="submit" name="next" value="back_change">戻る</button>
+-->
+
+                    <button class="ui button orange" type="submit" name="next" value="change">修正</button>
+                </form>
+
+</div>
+{% endblock %}

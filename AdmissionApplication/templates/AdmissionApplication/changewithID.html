@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %} 入館情報修正画面 {% endblock %}
+
+{% block main %}
+
+<ul>
+ <form  method="post">
+ {% csrf_token %}
+<input type = "hidden" name = "application_number" value={{application_number}} required id="id_application_number">
+<!--
+<a href="{{request.META.HTTP_REFERER}}">戻る</a>
+-->
+<table>
+{{ form.as_table }}
+<script>
+ $(function () {
+	$.datetimepicker.setLocale("ja");
+	$('#id_entrance_schedule').datetimepicker({
+		format : 'Y-m-d H:i',
+		step : 10
+	});
+	
+	$('#id_exit_schedule').datetimepicker({
+		format : 'Y-m-d H:i',
+		step : 10
+	});
+	});
+	</script>
+</table>
+
+<form action="" method="POST" name="form_change_choice_text" id="form_change_choice_text">
+            {% csrf_token %}
+           {{ password_form.non_field_errors }}
+              {{ password_form.as_p }}
+{% if messages %}
+{% for message in messages %}
+ 		<p><font color ="red"> {{message}} </font></p>
+ 		{% endfor %}
+{% endif %}                  
+
+<!--
+<button class="ui button grey" type="submit" name="next" value="back_show">戻る</button>
+-->
+  <button onClick="javascript:history.go(-1);">戻る</button>
+<!--
+<button class="ui button orange" type="submit" name="next" value="change">修正</button>
+-->
+<button class="ui button grey" type="submit" name="next" value="change" onclick='return confirm("本当に修正してよろしいですか？");'>修正</button>
+ </form>
+
+ 
+{% endblock %} 
