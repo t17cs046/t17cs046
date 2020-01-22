@@ -4,21 +4,18 @@
 
 {% block main %}
 
-  <tbody>
-  以下のメールアドレスに申請番号を送信しました．<br>
-      <tr>
-          {% for key, value in contents.items%}
-          <th>
-       
-          {{key}} &ensp; :&ensp; 
-          {{value}}<br></th>
-          {% endfor %}
-      </tr>
-      
-  </tbody>
+	<div class="alert alert-success" role="alert">
+		以下のメールアドレスに申請番号を送信しました．
+	</div>
+	<table class="table table-hover">
+		<tr>{% for key, value in contents.items%}
+			<td>{{key}}</td> 
+			<td>{{value}}</td>
+		</tr>
+	{% endfor %}
+	</table>
 
-
-<a href="{% url 'menu' %}"><button type="button" class="btn btn-light">最初に</button></a>
+<a href="{% url 'menu' %}"><button type="button" class="btn btn-outline-success">ホームに戻る</button></a>
 
 
 {% endblock %}

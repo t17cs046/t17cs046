@@ -3,24 +3,60 @@
 {% block title %} 個別リスト {% endblock %}
 
 {% block main %}
-
-<ul>
  
-<dl>
-<dt>入館申請番号</dt><dd>{{ user.application_number }}</dd>
-<dt>氏名</dt><dd>{{ user.user_name }}</dd>
-<dt>企業名</dt><dd>{{ user.organization_name }}</dd>
-<dt>電話番号</dt><dd>{{ user.phone_number }}</dd>
-<dt>メールアドレス</dt><dd>{{ user.mail_address }}</dd>
-<dt>入館予定</dt><dd>{{ user.entrance_schedule }}</dd>
-<dt>退館予定</dt><dd>{{ user.exit_schedule }}</dd>
-<dt>入館目的</dt><dd>{{ user.purpose_of_admission }}</dd>
-<dt>パスワード</dt><dd>{{ user.password }}</dd>
-<dt>承認可否</dt><dd>{% if user.approval == False %}未承認{% endif %}
-{% if user.approval == True %}承認済み{% endif %}</dd>
-<dt>入館実績</dt><dd>{{ user.achivement_entrance }}</dd>
-<dt>退館実績</dt><dd>{{ user.achivement_exit }}</dd>
-</dl>
+<table class="table table-hover">
+	<tr>
+		<td>入館申請番号</td>
+		<td>{{ user.application_number }}</td>
+	</tr>
+	<tr>
+		<td>氏名</td>
+		<td>{{ user.user_name }}</td>
+	</tr>
+	<tr>
+		<td>企業名</td>
+		<td>{{ user.organization_name }}</td>
+	</tr>
+	<tr>
+		<td>電話番号</td>
+		<td>{{ user.phone_number }}</td>
+	</tr>
+	<tr>
+		<td>メールアドレス</td>
+		<td>{{ user.mail_address }}</td>
+	</tr>
+	<tr>
+		<td>入館予定</td>
+		<td>{{ user.entrance_schedule }}</td>
+	</tr>
+	<tr>
+		<td>退館予定</td>
+		<td>{{ user.exit_schedule }}</td>
+	</tr>
+	<tr>
+		<td>入館目的</td>
+		<td>{{ user.purpose_of_admission }}</td>
+	</tr>
+	<tr>
+		<td>パスワード</td>
+		<td>{{ user.password }}</td>
+	</tr>
+	<tr>
+		<td>承認可否</td>
+		<td>
+			{% if user.approval == False %}未承認{% endif %}
+			{% if user.approval == True %}承認済み{% endif %}
+		</td>
+	</tr>
+	<tr>
+		<td>入館実績</td>
+		<td>{{ user.achivement_entrance }}</td>
+	</tr>
+	<tr>
+		<td>退館実績</td>
+		<td>{{ user.achivement_exit }}</td>
+	</tr>
+</table>
 
 <ul> 
  {% if user.approval == False %}
@@ -37,5 +73,7 @@
 </ul>
  
 </ul>
-<a href="{% url 'list' %}">一覧へ戻る</a>
+<center>
+<a href="{% url 'list' %}"><button type="submit" class="btn btn-outline-primary" name="next" value="confirm">戻る</button></a>
+ </center>
 {% endblock %} 
