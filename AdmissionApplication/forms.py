@@ -1,6 +1,7 @@
 from django import forms
 from .models import User
 from pip._vendor.pkg_resources import require
+from django.contrib.admin import widgets
 
 
 class ApplicationForm(forms.ModelForm):
@@ -25,6 +26,7 @@ class UserPasswordForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["password"]
+        widgets={"password":forms.PasswordInput()}
     
 class UserIdForm(forms.Form):
     user_id = forms.IntegerField(label='ID')    

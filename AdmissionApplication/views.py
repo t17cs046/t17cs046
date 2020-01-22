@@ -290,7 +290,7 @@ class UserChangeWithIDView(UpdateView):
             name = self.request.POST.get('user_name')
             organization_name=self.request.POST.get('organization_name')
             phone_number = self.request.POST.get('phone_number')
-            mail_address = self.request.POST.get('mail_addres')
+            mail_address = self.request.POST.get('mail_address')
             entrance_schedule = self.request.POST.get('entrance_schedule')
             exit_schedule = self.request.POST.get('exit_schedule')
             purpose_of_admission = self.request.POST.get('purpose_of_admission')
@@ -298,7 +298,7 @@ class UserChangeWithIDView(UpdateView):
             user.user_name=name
             user.organization_name = organization_name
             user.phone_number = phone_number
-            user.mail_addres = mail_address
+            user.mail_address = mail_address
             user.entrance_schedule = entrance_schedule
             user.exit_schedule = exit_schedule
             user.purpose_of_admission = purpose_of_admission
@@ -322,7 +322,7 @@ class UserChangeWithIDView(UpdateView):
             #他の利用者の入館時間<自分の入館時間<自分の退館時間<他の利用者の退館時間
             overlapping_3 = all_entries.filter(entrance_schedule__lt=self.request.POST.get("entrance_schedule"))
             overlapping_3 = overlapping_3.filter(exit_schedule__gt=self.request.POST.get("exit_schedule"))
-            today = str(datetime.now().year)+ '-' + str(datetime.now().month) +'-'+ str(datetime.now().day) + ' ' + str(datetime.now().hour) + ':' + str(datetime.now().minute) 
+            today = datetime.now().strftime('%Y-%m-%d %H:%M')
             if overlapping_1.count() > 0 or overlapping_2.count() > 0 or overlapping_3.count() > 0:
                 messages.info(self.request,'他の利用者と時間が重複しています.')
                 return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
