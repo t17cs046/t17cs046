@@ -489,3 +489,13 @@ class UserScheduleList(ListView):
             ).order_by("entrance_schedule")
         return context
 
+    def get_queryset(self):
+        schedule = self.request.GET.get('schedule')
+        print(schedule)
+        if schedule:
+            schedule_list = User.objects.filter(entrance_schedule__gte=schedule)
+        else:
+            schedule_list = None
+        return schedule_list 
+
+      
