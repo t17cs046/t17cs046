@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %} 入館申請番号入力画面 {% endblock %}
+
+{% block main %}
+<!--
+<a href="{{request.META.HTTP_REFERER}}">戻る</a>
+ -->
+
+<form class="ui form" action="{% url 'changedelete' %}" method="post">
+{% csrf_token %}
+{{ form }}
+
+<input type="submit"/>
+{% if messages %}
+{% for message in messages %}
+ 		<p><font color ="red"> {{message}} </font></p>
+ 		{% endfor %}
+{% endif %}
+</form>
+
+{% endblock %} 

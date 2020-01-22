@@ -3,6 +3,7 @@
 {% block title %} 入館申請番号入力画面 {% endblock %}
 
 {% block main %}
+ 
 <form class="ui form" action="{% url 'entrance' %}" method="post">
 {% csrf_token %}
 
