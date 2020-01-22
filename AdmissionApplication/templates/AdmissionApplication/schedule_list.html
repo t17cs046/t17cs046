@@ -16,10 +16,12 @@
 	</script>
 
         <button type="submit">検索</button>
-    </form><br>
+        
+ </form><br>
 
 
 {% if object_list != None %}
+指定された日時以降の予定は以下の通りです．
 <table border="1" width="1500" class="table">
 	<thead class="thead-dark">
 		<tr>		
@@ -42,6 +44,7 @@
 </table>
 {% endif %}
     
+{% if object_list == None %}
 <form action="{% url 'schedulelist'%}" method="post">
 {% csrf_token %}
 <table border="1" width="500" class="table">
@@ -66,6 +69,7 @@
 </table>
 {{ date.year }} 
 本日は{% now "F" %}{% now "j" %}日({% now "l" %})です<br><br>
+{% endif %}
 
 <a href="{% url 'menu' %}"><button type="button" class="btn btn-light">最初に戻る</button></a>
 

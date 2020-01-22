@@ -306,8 +306,8 @@ class UserScheduleList(ListView):
         schedule = self.request.GET.get('schedule')
         print(schedule)
         if schedule:
-            object_list = User.objects.filter(entrance_schedule__gte=schedule)
+            schedule_list = User.objects.filter(entrance_schedule__gte=schedule)
         else:
-            object_list = None
-        return object_list 
+            schedule_list = None
+        return schedule_list 
     
