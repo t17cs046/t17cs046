@@ -235,31 +235,41 @@ class UserChangeWithIDView(UpdateView):
     def form_valid(self, form):
         user=form.save(commit=False)
         pk=self.request.POST.get('user_id')
+        #user = get_object_or_404(User, pk=pk)
+        #pk=self.request.POST.get('pk')
         #print(form.cleaned_data['user_id'])
+        pk=user.pk
         ctx = {'form': form}
+        kwargs = {'pk':pk,'form' : form}
         #pk=self.request.GET.get('user_id')
         print(pk)
         #user=self.request.user
         if self.request.POST.get('next', '') == 'confirm':
             user=form.save(commit=False)
-            pk=user.pk
+            #pk=user.pk
             password=self.request.POST.get('password')
-            #print(pk)
+            #print(pk)//pk=2
             if(user.approval == True):
                 messages.info(self.request,'承認済のため修正できません.')
                 return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
             if(user.password != password):
                 messages.info(self.request,'パスワードが間違っています.')
                 return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
-            return render(self.request, 'AdmissionApplication/changeconfirm.html', ctx)
+            return render(self.request, 'AdmissionApplication/changeconfirm.html', kwargs) 
         if self.request.POST.get('next', '') == 'back_show':
             #user=form.save(commit=False)
             #pk=user.pk
+            print(pk)#pk=2=user.pk
             return HttpResponseRedirect(reverse('changedeleteshowwithID', kwargs={'pk':pk}))  
         if self.request.POST.get('next', '') == 'back_change':
+            print(pk)#none
             return render(self.request, 'AdmissionApplication/changewithID.html', ctx) 
         if self.request.POST.get('next', '') == 'change':
-            user = form.save(commit=False)
+            #user = form.save(commit=False)
+            #pk=user.pk (pk=1)
+            if(user.approval == True):
+                messages.info(self.request,'承認済のため修正できません.')
+                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
             #print(pk)
             user.save()
             #print(form.cleaned_data['user_id'])
@@ -291,7 +301,7 @@ class UserChangeWithIDView(UpdateView):
         context['form_id'] =  ApplicationForm(initial = {'user_id' : self.kwargs.get('pk')})
         context.update({
             #'password_form': UserPasswordForm(**self.get_form_kwargs()),
-            'password_form': UserPasswordForm(initial = {'password' : ''})
+            'password_form': UserPasswordForm(initial = {'password' : '','user_id' : self.kwargs.get('pk')})
             })
         return context
     
