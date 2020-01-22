@@ -20,12 +20,15 @@
 <dt>入館日時</dt><dd>{{ user.entrance_schedule }}</dd>
 <dt>退館日時</dt><dd>{{ user.exit_schedule }}</dd>
 <dt>入館目的</dt><dd>{{ user.purpose_of_admission }}</dd>
-<dt>承認</dt><dd>{{ user.approval }}</dd>
+<dt>承認</dt><dd>
+{% if user.approval == False %}未承認{% endif %}
+{% if user.approval == True %}承認済み{% endif %}
+</dd>
 </dl>
 <!--
 <button class="ui button grey" type="submit" name="next" value="back">戻る</button>
--->
-  <button onClick="javascript:history.go(-1);">戻る</button>
+<button onClick="javascript:history.go(-1);">戻る</button>
+  -->
 {% if not user.approval %}
 <button class="ui button grey" type="submit" name="next" value="change">修正</button>
 <button class="ui button orange" type="submit" name="next" value="delete">削除</button>

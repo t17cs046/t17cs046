@@ -22,6 +22,8 @@ class UserChangeDeleteForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["application_number","password"]
+        widgets={"password":forms.PasswordInput()}
+
                        
 class UserPasswordForm(forms.ModelForm):
     class Meta:

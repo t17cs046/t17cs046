@@ -247,13 +247,19 @@ class UserChangeDeleteView(TemplateView):
     def post(self, request, *args, **kwargs):
         application_number = self.request.POST.get("application_number")
         password = self.request.POST.get("password")
-        user = get_object_or_404(User, application_number=application_number)  
-        pk=user.pk  
-        if(user.password ==password):
-            return HttpResponseRedirect(reverse('changedeleteshowwithID', kwargs={'pk':pk}))
-        else: 
-            messages.info(self.request,'申請番号かパスワードが間違っています.')
-            return HttpResponseRedirect(reverse('changedelete'))
+        user_list=User.objects.filter(application_number__exact=self.request.POST.get("application_number"))
+        print(user_list)
+        if(user_list.count() > 0):   
+            user = get_object_or_404(User, application_number=application_number)  
+            pk=user.pk  
+            if(user.password ==password):
+                return HttpResponseRedirect(reverse('changedeleteshowwithID', kwargs={'pk':pk}))
+            else: 
+                messages.info(self.request,'パスワードが間違っています.')
+        else:
+            messages.info(self.request, '入館申請番号が間違っています')
+        return HttpResponseRedirect(reverse('changedelete'))
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = UserChangeDeleteForm()
