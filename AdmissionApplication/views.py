@@ -255,9 +255,9 @@ class UserChangeDeleteView(TemplateView):
             if(user.password ==password):
                 return HttpResponseRedirect(reverse('changedeleteshowwithID', kwargs={'pk':pk}))
             else: 
-                messages.info(self.request,'パスワードが間違っています.')
+                messages.error(self.request,'パスワードが間違っています.')
         else:
-            messages.info(self.request, '入館申請番号が間違っています')
+            messages.error(self.request, '入館申請番号が間違っています')
         return HttpResponseRedirect(reverse('changedelete'))
     
     def get_context_data(self, **kwargs):
@@ -357,12 +357,8 @@ class UserChangeWithIDView(UpdateView):
             user.exit_schedule = exit_schedule
             user.purpose_of_admission = purpose_of_admission
             pk=user.pk
-            if(user.approval == True):
-                messages.info(self.request,'承認済のため修正できません.')
-                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
-            if(user.password != password):
-                messages.info(self.request,'パスワードが間違っています.')
-                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
+            phone_serch = re.search(phone_regex, user.phone_number)
+            check = True
             #承認済み利用者を取得
             all_entries = User.objects.filter(approval__exact="True")
             #氏名と異なる利用者を取得
@@ -377,17 +373,31 @@ class UserChangeWithIDView(UpdateView):
             overlapping_3 = all_entries.filter(entrance_schedule__lt=self.request.POST.get("entrance_schedule"))
             overlapping_3 = overlapping_3.filter(exit_schedule__gt=self.request.POST.get("exit_schedule"))
             today = datetime.now().strftime('%Y-%m-%d %H:%M')
-            if overlapping_1.count() > 0 or overlapping_2.count() > 0 or overlapping_3.count() > 0:
-                messages.info(self.request,'他の利用者と時間が重複しています.')
-                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
+            if(user.approval == True):
+                messages.error(self.request,'承認済のため修正できません.')
+                check=False
+            elif (re.match('[ｦ-ﾟ]', user.user_name) != None):
+                messages.error(self.request, '氏名に半角カナは使用できません.')
+                check = False
+            elif 'None' in str(phone_serch):
+                messages.error(self.request, '有効な電話番号を入力してください．')
+                check = False           
+            elif (re.match('[A-Za-z0-9\._+]+@[A-Za-z]+\.[A-Za-z]', user.mail_address) == None) :
+                messages.error(self.request, '有効なメールアドレスを入力してください.')
+                check = False                 
             elif self.request.POST.get("entrance_schedule") > self.request.POST.get("exit_schedule"):
-                messages.info(self.request,'正しい入退館時間を入力してください.')
-                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
-            
+                messages.error(self.request,'入館予定日時が退館予定日時より前になっています.')
+                check=False          
             elif self.request.POST.get("entrance_schedule") < today:
-                messages.info(self.request,'正しい入退館時間を入力してください.')
-                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))
-                
+                messages.error(self.request,'入館予定日時が現在時刻より前になっています')
+                check=False
+            elif overlapping_1.count() > 0 or overlapping_2.count() > 0 or overlapping_3.count() > 0:
+                messages.error(self.request,'他の利用者と時間が重複しています.')
+            elif(user.password != password):
+                messages.error(self.request,'パスワードが間違っています.')
+                check=False
+            if(check==False):
+                return HttpResponseRedirect(reverse('changewithID', kwargs={'pk':pk}))    
             template = get_template('AdmissionApplication/mail/change_mail.html')
             mail_ctx={
                 'user_name': user.user_name,
